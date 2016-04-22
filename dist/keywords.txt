@@ -1,0 +1,40 @@
+#######################################
+# Syntax Coloring Map For OOCSI
+#######################################
+
+#######################################
+# Datatypes (KEYWORD1)
+#######################################
+
+OOCSI	KEYWORD1
+
+
+#######################################
+# Methods and Functions (KEYWORD2)
+#######################################
+connectOocsi	KEYWORD2
+check		KEYWORD2
+subscribe	KEYWORD2
+unsubscribe 	KEYWORD2
+printMessage	KEYWORD2
+getInt		KEYWORD2
+getFloat 	KEYWORD2
+getString	KEYWORD2
+getIntArray 	KEYWORD2
+getFloatArray	KEYWORD2
+getStringArray KEYWORD2
+newMessage 	KEYWORD2
+sendInt		KEYWORD2
+sendFloat 	KEYWORD2
+sendString 	KEYWORD2
+sendIntArray 	KEYWORD2
+sendFloatArray	KEYWORD2
+sendStringArray		KEYWORD2
+sendMessage 	KEYWORD2
+printSendMessage KEYWORD2
+
+#######################################
+# Constants (LITERAL1)
+#######################################
+
+#	LITERAL1
