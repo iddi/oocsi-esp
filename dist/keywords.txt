@@ -18,20 +18,31 @@ subscribe	KEYWORD2
 unsubscribe 	KEYWORD2
 printMessage	KEYWORD2
 getInt		KEYWORD2
+getLong		KEYWORD2
 getFloat 	KEYWORD2
 getString	KEYWORD2
 getIntArray 	KEYWORD2
 getFloatArray	KEYWORD2
 getStringArray KEYWORD2
+getSender	KEYWORD2
+getRecipient	KEYWORD2
+getTimeStamp	KEYWORD2
+has		KEYWORD2
+keys		KEYWORD2
 newMessage 	KEYWORD2
 sendInt		KEYWORD2
+sendLong	KEYWORD2
 sendFloat 	KEYWORD2
 sendString 	KEYWORD2
 sendIntArray 	KEYWORD2
 sendFloatArray	KEYWORD2
 sendStringArray		KEYWORD2
 sendMessage 	KEYWORD2
-printSendMessage KEYWORD2
+printSendMessage	KEYWORD2
+getClients	KEYWORD2
+getChannels	KEYWORD2
+containsClient	KEYWORD2
+
 
 #######################################
 # Constants (LITERAL1)
