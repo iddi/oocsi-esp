@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project default="createDistribution" name="Create Processing plugin distribution bundle">
+    <!--ANT 1.7 is required                                        -->
+	<target name="copySources">
+    	<copy todir="../dist/oocsi">
+    	    <fileset dir="../src"/>
+		</copy>
+    </target>
+
+    <target name="createDistribution" depends="copySources">
+		<zip destfile="../dist/oocsi.zip">
+			<zipfileset dir="../dist/oocsi" prefix="oocsi"/>
+		</zip>
+    </target>
+</project>

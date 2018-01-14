@@ -12,11 +12,12 @@ OOCSI	KEYWORD1
 #######################################
 # Methods and Functions (KEYWORD2)
 #######################################
-connectOocsi	KEYWORD2
+connect		KEYWORD2
 check		KEYWORD2
 subscribe	KEYWORD2
 unsubscribe 	KEYWORD2
-printMessage	KEYWORD2
+
+
 getInt		KEYWORD2
 getLong		KEYWORD2
 getFloat 	KEYWORD2
@@ -29,16 +30,21 @@ getRecipient	KEYWORD2
 getTimeStamp	KEYWORD2
 has		KEYWORD2
 keys		KEYWORD2
+printMessage		KEYWORD2
+setActivityLEDPin		KEYWORD2
+setLogging		 KEYWORD2
+
 newMessage 	KEYWORD2
-sendInt		KEYWORD2
-sendLong	KEYWORD2
-sendFloat 	KEYWORD2
-sendString 	KEYWORD2
-sendIntArray 	KEYWORD2
-sendFloatArray	KEYWORD2
-sendStringArray		KEYWORD2
+addInt		KEYWORD2
+addLong		KEYWORD2
+addFloat 	KEYWORD2
+addString 	KEYWORD2
+addIntArray 	KEYWORD2
+addFloatArray	KEYWORD2
+addStringArray		KEYWORD2
 sendMessage 	KEYWORD2
 printSendMessage	KEYWORD2
+
 getClients	KEYWORD2
 getChannels	KEYWORD2
 containsClient	KEYWORD2
