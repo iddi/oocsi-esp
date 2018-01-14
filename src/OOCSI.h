@@ -1,88 +1,98 @@
 /***************************************************************************
- * The OOCSI library for the ESP8266 is created to conntect the ESP8266
+ * The OOCSI library for the ESP32 and ESP 8266 is created to connect ESPs
  * to the OOCSI platform (https://github.com/iddi/oocsi).
  * It allows to send and receive from the OOCSI platform and allows for easy
- * set-up of the ESP8266 platform as an OOCSI client.
- * Built by Jort Band
+ * set-up of the ESP32 and ESP8266 platforms as OOCSI clients.
+ *
+ * Developed by Jort Band, Mathias Funk
  **************************************************************************/
 
-//TODO: check for connection periodically if it is lost, reconnect
-//TODO: Create a WIFI manager
-//* (DONE, TODO: Test)Phase 1: reconnect OOCSI automatically on lost connection
-//* Phase 2: allow input of multiple adresses
-//TODO: Create String, Int, Float, Long, structs for returning an array with length
-
- #ifndef OOCSI_h
+#ifndef OOCSI_h
 #define OOCSI_h
 
+#ifdef ESP32
+#include <WiFi.h>
+#else
 #include <ESP8266WiFi.h>
+#endif
+
 class OOCSI{
   public:
-    //setup functions
-    OOCSI(String  Name, char* hostServer, void (*func)());
-    OOCSI(const char* Name, const char* hostServer, const char* Wifissid, const char* wifipassword, void (*func)());
-    boolean connectOocsi();
+
+    // setup, connection, subscription
+    OOCSI();
+    boolean connect(const char* Name, const char* hostServer, void (*func)());
+    boolean connect(const char* Name, const char* hostServer, const char* Wifissid, const char* wifipassword, void (*func)());
     void check();
-    void subscribe(String chan);
-    void unsubscribe(String chan);                                                           //TODO: test
+    void subscribe(const char* chan);
+    void unsubscribe(const char* chan);                                                           //TODO: test
 
-    //retrieve data functions
-    void printMessage();
-    int getInt(String key, int standard);
-    long getLong(String key, long standard);                                                //TODO: test
-    float getFloat(String key, float standard);
-    String getString(String key, String standard);
-    void getIntArray(String key, int standard[], int* passArray, int arrayLength);          //make it return a string pointer, use struct??, need size.
-    void getFloatArray(String key, float standard[], float* passArray, int arrayLength);    //make it return a float pointer
-    void getStringArray(String key, String standard[], String* passArray, int arrayLength); //make it return a string pointer
-    String getSender();                                                                     //TODO: test
-    String getRecipient();                                                                  //TODO: test
-    long getTimeStamp();                                                                    //TODO: test                                                                 //TODO: test
-    boolean has(String key);                                                                //TODO: test
-    String keys();                                                                          //TODO: test
-
-
-
-    //send data functions
-    void newMessage(String receiver);
-    void sendInt(String key, int value);
-    void sendLong(String key, long value);
-    void sendFloat(String key, float value);
-    void sendString(String key, String value);
-    void sendIntArray(String key, int* value, int len);
-    void sendFloatArray(String key, float* value, int len);
-    void sendStringArray(String key, String* value, int len);
+    // sending data
+    OOCSI newMessage(const char* receiver);
+    OOCSI addInt(const char* key, int value);
+    OOCSI addLong(const char* key, long value);
+    OOCSI addFloat(const char* key, float value);
+    OOCSI addString(const char* key, const char* value);
+    OOCSI addIntArray(const char* key, int* value, int len);
+    OOCSI addFloatArray(const char* key, float* value, int len);
+    OOCSI addStringArray(const char* key, const char* value, int len);
     void sendMessage();
     void printSendMessage();
 
-    //misc functions
+    // receiving data
+    String getSender();                                                                     //TODO: test
+    String getRecipient();                                                                  //TODO: test
+    int getInt(const char* key, int standard);
+    long getLong(const char* key, long standard);                                                //TODO: test
+    float getFloat(const char* key, float standard);
+    String getString(const char* key, const char* standard);
+    void getIntArray(const char* key, int standard[], int* passArray, int arrayLength);          //make it return a string pointer, use struct??, need size.
+    void getFloatArray(const char* key, float standard[], float* passArray, int arrayLength);    //make it return a float pointer
+    // void getStringArray(const char* key, char* standard[], char* passArray[], int arrayLength); //make it return a string pointer
+    long getTimeStamp();                                                                    //TODO: test                                                                 //TODO: test
+    boolean has(const char* key);                                                                //TODO: test
+    String keys();                                                                          //TODO: test
+    void printMessage();
+    void setActivityLEDPin(int ledPin);
+    void setLogging(boolean log);
+
+    // misc functions
     String getClients();                                                                  //TODO: test
     String getChannels();                                                                 //TODO: test/create
-    boolean containsClient(String clientName);                                          //TODO: test
+    boolean containsClient(const char* clientName);                                          //TODO: test
     //void removeSlashes(); //To cope with random popping up slashes                        //TODO: test
 
 
-
   private:
-    WiFiClient client;
-    boolean manageWifi;
-    void connectWifi();
-    void checkPing();
-    const uint16_t port = 4444;
-    String theMessage;
-    String outgoingMessage;
-    String messageReceiver;
-    boolean firstval;
+    // OOCSI
     String OOCSIName;
-    const char*  host;
-    const char* ssid;
-    const char* password;
-    String channel;
-    //uint16_t connectionAttemptCounter ;
-    boolean receivedMessage;
-    void (*processMessage)();
+    const char* host;
+    const uint16_t port = 4444;
     boolean OOCSIConnected;
     long prevTime;
+
+    // WIFI
+    const char* ssid;
+    const char* password;
+    WiFiClient client;
+    boolean manageWifi;
+
+    // messaging
+    String theMessage;
+    String outgoingMessage;
+    boolean receivedMessage;
+    boolean firstval;
+    int activityLEDPin;
+    boolean logging;
+
+    void print(const String &message);
+    void print(char message);
+    void println();
+    void println(const String &message);
+    void println(char message);
+    void connectWifi();
+    boolean internalConnect();
+    void (*processMessage)();
 };
 
 #endif
