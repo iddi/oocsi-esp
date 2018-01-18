@@ -7,7 +7,7 @@ There are two basic components that form an OOCSI network: the client and the se
 THe OOCSI for ESP library is made for the Arduino IDE and it allows to directly use most of the OOCSI functionality in small-scale systems. We tested this library with the ESP32 and ESP8266.
 
 # How to install
-To install the library, download the latest [release](https://github.com/iddi/oocsi-esp/releases) and unpack it into the libraries folder of your Arduino IDE (usually here: Documents/Arduino/libraries/). After this, restart the Arduino IDE and check whether a new examples category "OOCSI" is shown. If yes, all fine, start coding. If not, check again that the library is in the right folder.
+To install the library, download the library archive **oocsi.zip** from the latest [release](https://github.com/iddi/oocsi-esp/releases) and unpack **oocsi.zip** into the libraries folder of your Arduino IDE (usually here: Documents/Arduino/libraries/). After this, restart the Arduino IDE and check whether a new examples category "OOCSI" is shown. If yes, all fine, start coding. If not, check again that the library is in the right folder. Make sure that you have downloaded the oocsi.zip library archive and *not* the source archive of the release.
 
 # How to use
 To use OOCSI for ESP, please check out the example code that is packaged with the library. Below, the different functions of the library will be explained divided into the following parts: connecting to a network, sending data to the network and receiving data from the network. We will use similar code as in the library examples.
