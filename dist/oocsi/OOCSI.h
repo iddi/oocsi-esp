@@ -16,6 +16,9 @@
 #include <ESP8266WiFi.h>
 #endif
 
+#include "OOCSIJsonParser.h"
+#include "JsonStreamingParser.h"
+
 class OOCSI{
   public:
 
@@ -25,7 +28,7 @@ class OOCSI{
     boolean connect(const char* Name, const char* hostServer, const char* Wifissid, const char* wifipassword, void (*func)());
     void check();
     void subscribe(const char* chan);
-    void unsubscribe(const char* chan);                                                           //TODO: test
+    void unsubscribe(const char* chan);
 
     // sending data
     OOCSI newMessage(const char* receiver);
@@ -40,28 +43,26 @@ class OOCSI{
     void printSendMessage();
 
     // receiving data
-    String getSender();                                                                     //TODO: test
-    String getRecipient();                                                                  //TODO: test
+    String getSender();
+    String getRecipient();
     int getInt(const char* key, int standard);
-    long getLong(const char* key, long standard);                                                //TODO: test
+    long getLong(const char* key, long standard);
     float getFloat(const char* key, float standard);
     String getString(const char* key, const char* standard);
-    void getIntArray(const char* key, int standard[], int* passArray, int arrayLength);          //make it return a string pointer, use struct??, need size.
-    void getFloatArray(const char* key, float standard[], float* passArray, int arrayLength);    //make it return a float pointer
-    // void getStringArray(const char* key, char* standard[], char* passArray[], int arrayLength); //make it return a string pointer
-    long getTimeStamp();                                                                    //TODO: test                                                                 //TODO: test
-    boolean has(const char* key);                                                                //TODO: test
-    String keys();                                                                          //TODO: test
+    void getIntArray(const char* key, int standard[], int* passArray, int arrayLength);
+    void getFloatArray(const char* key, float standard[], float* passArray, int arrayLength);
+    void getStringArray(const char* key, const char* standard[], char* passArray[], int arrayLength);
+    long getTimeStamp();
+    boolean has(const char* key);
+    String keys();
     void printMessage();
     void setActivityLEDPin(int ledPin);
     void setLogging(boolean log);
 
     // misc functions
-    String getClients();                                                                  //TODO: test
-    String getChannels();                                                                 //TODO: test/create
-    boolean containsClient(const char* clientName);                                          //TODO: test
-    //void removeSlashes(); //To cope with random popping up slashes                        //TODO: test
-
+    String getClients();                                       
+    String getChannels();                                                                 
+    boolean containsClient(const char* clientName);
 
   private:
     // OOCSI
@@ -81,6 +82,8 @@ class OOCSI{
     String theMessage;
     String outgoingMessage;
     boolean receivedMessage;
+    JsonStreamingParser parser;
+    OOCSIJsonListener listener;
     boolean firstval;
     int activityLEDPin;
     boolean logging;

@@ -1,7 +1,8 @@
-/*********************************************************************8*8******
+/******************************************************************************
    Example of the OOCSI-ESP library connecting to WiFi and sending messages
-   over OOCSI. Designed to work with the Processing OOCSI DataReceiver example
- **********************************************************************8*8*****/
+   over OOCSI. Designed to work with the Processing OOCSI receiver example
+   that is provided in the same directory
+ ******************************************************************************/
 
 #include "OOCSI.h"
 
@@ -23,9 +24,9 @@ OOCSI oocsi = OOCSI();
 void setup() {
   Serial.begin(115200);
 
-  // output OOCSI activity on pin 5 (LED)
-  pinMode(5, OUTPUT);
-  oocsi.setActivityLEDPin(5);
+  // output OOCSI activity on the built-in LED
+  pinMode(LED_BUILTIN, OUTPUT);
+  oocsi.setActivityLEDPin(LED_BUILTIN);
 
   // use this to switch off logging to Serial
   // oocsi.setLogging(false);
@@ -38,14 +39,14 @@ void setup() {
 // put your main code here, to run repeatedly:
 void loop() {
   // create a new message
-  oocsi.newMessage("testchannel");
+  oocsi.newMessage("esp-testchannel");
 
   // add data (primitive data types int, float, long, string)
   // the labels such as "count" or "timestamp" are completely free to choose
+  oocsi.addString("greeting" , "hello world!");
   oocsi.addInt("count", 40);
-  oocsi.addLong("timestamp", (long) 51250220);
-  oocsi.addFloat("float_point", 50.0);
-  oocsi.addString("greeting" , "hello world");
+  oocsi.addFloat("float_point", sin(millis()));
+  oocsi.addLong("time", (long) millis());
 
   // sending arrays
   int theIntArray[] = {45, 55, 60};

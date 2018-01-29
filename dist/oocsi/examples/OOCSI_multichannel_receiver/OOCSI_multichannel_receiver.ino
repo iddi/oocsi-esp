@@ -16,9 +16,9 @@ const char* OOCSIName = "ESP_OOCSI_CLIENT_MC_RECEIVER";
 // put the adress of your OOCSI server here, can be URL or IP address string
 const char* hostserver = "your OOCSI server address";
 // name of the channel you want to subscribe to (can subscribe to multiple channels)
-const char* channel1 = "testchannel1";
-const char* channel2 = "testchannel2";
-const char* channel3 = "testchannel3";
+const char* channel1 = "esp-testchannel1";
+const char* channel2 = "esp-testchannel2";
+const char* channel3 = "esp-testchannel3";
 
 // OOCSI reference for the entire sketch
 OOCSI oocsi = OOCSI();
