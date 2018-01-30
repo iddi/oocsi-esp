@@ -27,9 +27,9 @@ OOCSI oocsi = OOCSI();
 void setup() {
   Serial.begin(115200);
 
-  // output OOCSI activity on pin 5 (LED)
-  pinMode(5, OUTPUT);
-  oocsi.setActivityLEDPin(5);
+  // output OOCSI activity on the built-in LED
+  pinMode(LED_BUILTIN, OUTPUT);
+  oocsi.setActivityLEDPin(LED_BUILTIN);
 
   // use this to switch off logging to Serial
   // oocsi.setLogging(false);
