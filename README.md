@@ -6,6 +6,21 @@ There are two basic components that form an OOCSI network: the client and the se
 
 THe OOCSI for ESP library is made for the Arduino IDE and it allows to directly use most of the OOCSI functionality in small-scale systems. We tested this library with the ESP32 and ESP8266.
 
+# Compatibility
+| Module | ESP variant | v1.2 | v1.3 | Link |
+| ---- |:----:|:----:|:----:| ---- |
+| Sparkfun ESP32 Thing | 32 | s/r | s/r |  https://www.antratek.nl/sparkfun-esp32-thing |
+| Sparkfun ESP8266 Thing | 8266 | s/r | r |  https://www.antratek.nl/sparkfun-esp8266-thing |
+| WeMos Di & D2 Mini V2.1.0 | 8266 | s |   |   |
+| NodeMCU | 8266 | s/r  | r |  https://www.antratek.nl/nodemcu-v2-lua-based-esp8266-development-kit |
+| WeMos V3.0.0 | 8266 |   |   |   |
+| WeMos D1 mini lite | 8266 |   |   |   |
+| Adafruit Feather HUZZAH | 8266 | s | r |  https://www.antratek.nl/feather-huzzah-with-esp8266-wifi |
+
+*s = sending / r = receiving*
+
+Check the table above for compatilibity with different ESPs. Version v1.2 is more basic and can only deal with first level event data. v1.3 can parse JSON properly, but needs more memory, making it less stable on some low-memory modules. Both versions are available from https://github.com/iddi/oocsi-esp/releases.
+
 # How to install
 To install the library, download the library archive **oocsi.zip** from the latest [release](https://github.com/iddi/oocsi-esp/releases) and unpack **oocsi.zip** into the libraries folder of your Arduino IDE (usually here: Documents/Arduino/libraries/). After this, restart the Arduino IDE and check whether a new examples category "OOCSI" is shown. If yes, all fine, start coding. If not, check again that the library is in the right folder. Make sure that you have downloaded the oocsi.zip library archive and *not* the source archive of the release.
 
