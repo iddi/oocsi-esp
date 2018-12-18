@@ -203,40 +203,54 @@ void OOCSI::check() {
   }
 }
 
+// function which prints the entire incoming message
 void OOCSI::printMessage() {
-  //function which prints the entire incoming message
   print(theMessage);
 }
 
-int OOCSI::getInt(const char* key, int standard) {
-
-  int index = theMessage.indexOf(*key);
+bool OOCSI::getBool(const char* key, bool standard) {
+  int index = theMessage.indexOf(key);
   if (index == -1) {
     return standard;
   } else {
     index += strlen(key);
-    index = index + 2; //to get past the ": chars
-    int endindex = theMessage.indexOf(' ', index) - 1; //search for the first seperation char (a space)
-    //print("theindex is: ");
-    //println(index);
-    String numbers = theMessage.substring(index, endindex + 1);
+    // to get past the ": chars
+    index = index + 2;
+    // search for the first separation char
+    int endindex = getNextStopChar(index);
+    String numbers = theMessage.substring(index, endindex);
+    bool result = numbers.equalsIgnoreCase("true") ? true : false;
+    return result;
+  }
+}
+
+int OOCSI::getInt(const char* key, int standard) {
+  int index = theMessage.indexOf(key);
+  if (index == -1) {
+    return standard;
+  } else {
+    index += strlen(key);
+    // to get past the ": chars
+    index = index + 2;
+    // search for the first separation char
+    int endindex = getNextStopChar(index);
+    String numbers = theMessage.substring(index, endindex);
     int result = numbers.toInt();
     return result;
   }
 }
 
 long OOCSI::getLong(const char* key, long standard) {
-
   int index = theMessage.indexOf(key);
   if (index == -1) {
     return standard;
   } else {
     index += strlen(key);
-    index = index + 2; //to get past the ": chars
-    int endindex = theMessage.indexOf(' ', index) - 1; //search for the first seperation char (a space)
-    //print("theindex is: ");
-    //println(index);
-    String numbers = theMessage.substring(index, endindex + 1);
+    // to get past the ": chars
+    index = index + 2;
+    // search for the first separation char
+    int endindex = getNextStopChar(index);
+    String numbers = theMessage.substring(index, endindex);
     long result = numbers.toInt();
     return result;
   }
@@ -250,11 +264,11 @@ float OOCSI::getFloat(const char* key, float standard) {
     return standard;
   } else {
     index += strlen(key);
-    index = index + 2; //to get past the ": chars
-    int endindex = theMessage.indexOf(' ', index) - 1; //search for the first seperation char (a space)
-    //print("theindex is: ");
-    //println(index);
-    String numbers = theMessage.substring(index, endindex + 1);
+    // to get past the ": chars
+    index = index + 2;
+    // search for the first separation char
+    int endindex = getNextStopChar(index);
+    String numbers = theMessage.substring(index, endindex);
     float result = numbers.toFloat();
     return result;
   }
@@ -265,10 +279,36 @@ String OOCSI::getString(const char* key, const char* standard) {
   if (index == -1) {
     return standard;
   } else {
-    index += strlen(key) + 3; //to get past the ": chars
-    int endindex = theMessage.indexOf('"', index); //search for the end char a: "
+    // to get past the ":" chars
+    index += strlen(key) + 3;
+    // search for the end char a: "
+    int endindex = theMessage.indexOf('"', index);
     String result = theMessage.substring(index, endindex);
     return result;
+  }
+}
+
+void  OOCSI::getBoolArray(const char* key, bool standard[], bool* passArray, int arrayLength) {
+  //array opens with [, closes with ], seperation with: , so example:"data:[true,false,true,false]"
+  int index = theMessage.indexOf(key);
+  if (index == -1) {
+    passArray = standard;
+  } else {
+    index += strlen(key) + 3;
+    int closingindex = theMessage.indexOf("]", index);
+    int endindex = theMessage.indexOf(',', index);
+    boolean breakAfter = false;
+    for (int i = 0; i < arrayLength; i++) {
+      passArray[i] = theMessage.substring(index, endindex).equalsIgnoreCase("true");
+      index = endindex + 1;
+      endindex = theMessage.indexOf(',', index);
+      if (breakAfter) {
+        break;
+      }
+      if (endindex == -1 || endindex >= closingindex) {
+        breakAfter = true;
+      }
+    }
   }
 }
 
@@ -344,62 +384,15 @@ void OOCSI::getFloatArray(const char* key, float standard[], float* passArray, i
 // }
 
 String OOCSI::getSender() {
-  int index = theMessage.indexOf("sender");
-  String result;
-  if (index == -1) {
-    result = "";
-    return result;
-  } else {
-    // sender has 6 chars + 3 for delimiters
-    index += 6 + 3;
-    int closingindex = theMessage.indexOf('"' , index);
-    result = theMessage.substring(index, closingindex);
-    return result;
-  }
+  return getString("sender", "");
 }
 
 String OOCSI::getRecipient() {
-  int index = theMessage.indexOf("recipient");
-  String result;
-  if (index == -1) {
-    result = "";
-    return result;
-  } else {
-    // recipient has 9 chars + 3 for delimiters
-    index += 9 + 3;
-    int closingindex = theMessage.indexOf('"' , index);
-    result = theMessage.substring(index, closingindex);
-    return result;
-  }
+  return getString("recipient", "");
 }
 
 long OOCSI::getTimeStamp() {
-  int index = theMessage.indexOf("timestamp");
-  if (index == -1) {
-    return -0;
-  } else {
-    // timestamp has 9 chars long + 2 for delimiters
-    index += 9 + 2;
-    int endindex = theMessage.indexOf(',', index) - 1; //search for the first seperation char (a comma)
-
-    //check if numbers is longer then 10 (to prevent overflowing the number)
-    // print("startindex: ");
-    // print(index);
-    // print("\tendindex: ");
-    // print(endindex);
-    if (endindex - index > 10) {
-      //cut the string
-      index = endindex - 9;
-    }
-    // print("\tstartindex2: ");
-    // println(index);
-    String numbers = theMessage.substring(index, endindex + 1);
-    // print("temp timestamp: ");
-    // println(numbers);
-
-    long result = numbers.toInt();
-    return result;
-  }
+  return getLong("timestamp", -1);
 }
 
 boolean OOCSI::has(const char* key) {
@@ -466,6 +459,24 @@ OOCSI OOCSI::newMessage(const char* receiver) {
   outgoingMessage.concat(receiver);
   outgoingMessage.concat(" {");
   firstval = true;
+
+  return *this;
+}
+
+// function for sending a bool to OOCSI
+OOCSI OOCSI::addBool(const char* key, bool value) {
+  if (firstval) {
+    outgoingMessage.concat('"');
+    firstval = false;
+  } else {
+    outgoingMessage.concat(',');
+    outgoingMessage.concat('"');
+  }
+  outgoingMessage.concat(key);
+  outgoingMessage.concat('"');
+  outgoingMessage.concat(':');
+  String no = value ? "true" : "false";
+  outgoingMessage.concat(no);
 
   return *this;
 }
@@ -538,6 +549,31 @@ OOCSI OOCSI::addString(const char* key, const char* value) {
   outgoingMessage.concat('"');
   outgoingMessage.concat(value);
   outgoingMessage.concat('"');
+
+  return *this;
+}
+
+// function for sending an array of bools
+OOCSI OOCSI::addBoolArray(const char* key, bool* value, int len) {
+  if (firstval) {
+    outgoingMessage.concat('"');
+    firstval = false;
+  } else {
+    outgoingMessage.concat(',');
+    outgoingMessage.concat('"');
+  }
+  outgoingMessage.concat(key);
+  outgoingMessage.concat('"');
+  outgoingMessage.concat(':');
+  outgoingMessage.concat('[');
+  for (int i = 0; i < len; i++) {
+    String no = value[i] ? "true" : "false";
+    outgoingMessage.concat(no);
+    if (i < len - 1) {
+      outgoingMessage.concat(',');
+    }
+  }
+  outgoingMessage.concat(']');
 
   return *this;
 }
@@ -674,6 +710,27 @@ boolean OOCSI::containsClient(const char* clientName) {
   }
 
   return true;
+}
+
+int OOCSI::getNextStopChar(int startIndex) {
+    int ws = theMessage.indexOf(' ', startIndex);
+    int cm = theMessage.indexOf(',', startIndex);
+    int cb = theMessage.indexOf('}', startIndex);
+
+    int endindex = theMessage.length() - 1;
+
+    if(ws > -1) {
+      endindex = ws < endindex ? ws : endindex;
+    }
+    if(cm > -1) {
+      endindex = cm < endindex ? cm : endindex;
+    }
+    if(cb > -1) {
+      endindex = cb < endindex ? cb : endindex;
+    }
+
+    return endindex;
+
 }
 
 void OOCSI::print(const String &message) {

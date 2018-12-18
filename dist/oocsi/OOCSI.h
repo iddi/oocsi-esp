@@ -29,10 +29,12 @@ class OOCSI{
 
     // sending data
     OOCSI newMessage(const char* receiver);
+    OOCSI addBool(const char* key, bool value);
     OOCSI addInt(const char* key, int value);
     OOCSI addLong(const char* key, long value);
     OOCSI addFloat(const char* key, float value);
     OOCSI addString(const char* key, const char* value);
+    OOCSI addBoolArray(const char* key, bool* value, int len);
     OOCSI addIntArray(const char* key, int* value, int len);
     OOCSI addFloatArray(const char* key, float* value, int len);
     OOCSI addStringArray(const char* key, const char* value, int len);
@@ -40,27 +42,28 @@ class OOCSI{
     void printSendMessage();
 
     // receiving data
-    String getSender();                                                                     //TODO: test
-    String getRecipient();                                                                  //TODO: test
+    String getSender();
+    String getRecipient();
+    bool getBool(const char* key, bool standard);
     int getInt(const char* key, int standard);
-    long getLong(const char* key, long standard);                                                //TODO: test
+    long getLong(const char* key, long standard);
     float getFloat(const char* key, float standard);
     String getString(const char* key, const char* standard);
+    void getBoolArray(const char* key, bool standard[], bool* passArray, int arrayLength);          //make it return a string pointer, use struct??, need size.
     void getIntArray(const char* key, int standard[], int* passArray, int arrayLength);          //make it return a string pointer, use struct??, need size.
     void getFloatArray(const char* key, float standard[], float* passArray, int arrayLength);    //make it return a float pointer
     // void getStringArray(const char* key, char* standard[], char* passArray[], int arrayLength); //make it return a string pointer
-    long getTimeStamp();                                                                    //TODO: test                                                                 //TODO: test
-    boolean has(const char* key);                                                                //TODO: test
-    String keys();                                                                          //TODO: test
+    long getTimeStamp();
+    boolean has(const char* key);
+    String keys();
     void printMessage();
     void setActivityLEDPin(int ledPin);
     void setLogging(boolean log);
 
     // misc functions
-    String getClients();                                                                  //TODO: test
-    String getChannels();                                                                 //TODO: test/create
-    boolean containsClient(const char* clientName);                                          //TODO: test
-    //void removeSlashes(); //To cope with random popping up slashes                        //TODO: test
+    String getClients();
+    String getChannels();
+    boolean containsClient(const char* clientName);
 
 
   private:
@@ -85,6 +88,7 @@ class OOCSI{
     int activityLEDPin;
     boolean logging;
 
+    int getNextStopChar(int startIndex);
     void print(const String &message);
     void print(char message);
     void println();
