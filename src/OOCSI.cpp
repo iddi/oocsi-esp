@@ -8,11 +8,16 @@
  **************************************************************************/
 
 #include "OOCSI.h"
+#include "OOCSIJsonParser.h"
+#include "JsonStreamingParser.h"
+
 
 // function for creating an OOCSI client
 OOCSI::OOCSI() {
   activityLEDPin = -1;
   logging = true;
+
+  parser.setListener(&listener);
 }
 
 // function for connecting first to OOCSI
@@ -56,13 +61,12 @@ void OOCSI::connectWifi() {
   WiFi.mode(WIFI_STA);
   WiFi.begin(ssid, password);
   int counter = 0;
-  print("Connecting to Wifi");
+  println("Connecting to Wifi");
   boolean connected = false;
 
-  while (WiFi.status() != WL_CONNECTED && counter++ < 500) {
+  while (WiFi.status() != WL_CONNECTED && counter++ < 50) {  yield();
     if (WiFi.status() == WL_CONNECTED) {
       if (counter > 0) {
-        println();
         println("Wifi connection established");
       }
       connected = true;
@@ -83,8 +87,7 @@ void OOCSI::connectWifi() {
 
     // new line
     if (counter % 80 == 0) {
-      println();
-      print("Connecting to Wifi");
+      println("Connecting to Wifi");
     }
 
     // wait before next attempt
@@ -113,30 +116,36 @@ void OOCSI::unsubscribe(const char* chan) {
 
 // function to internally connect to OOCSI (needs all variables set up)
 boolean OOCSI::internalConnect() {
-  if (manageWifi) {
+  
+  // keep connecting the wifi
+  while (manageWifi && WiFi.status() != WL_CONNECTED) {  yield();
     connectWifi();
   }
 
+  // only then connect OOCSI
   println();
   println("Connecting to OOCSI");
 
   static int connectionAttemptCounter = 0;
   if (!client.connect(host, port)) {
-    //then it failed. so do it again
+    // it failed. so do it again
     if (connectionAttemptCounter++ < 100) {
       internalConnect();
+      print(".");
     } else {
       println("setting up OOCSI Connection failed");
       return false;
     }
   } else {
     // continue with client-server handshake
-    client.print(OOCSIName);
+    client.println(OOCSIName);
+    client.setTimeout(500);
 
     // wait for a response from the server (max. 20 sec)
     int waitingResponseCounter = 0;
-    while (!client.available() && waitingResponseCounter++ < 40) {
-      delay(500);
+    while (!client.available() && waitingResponseCounter++ < 40) {  yield();
+      print(".");
+      delay(200);
     }
 
     if (client.available()) {
@@ -146,7 +155,7 @@ boolean OOCSI::internalConnect() {
 
       if (message.indexOf("welcome") == -1) {
         // wait before connecting again
-        delay(2000);
+        delay(1000);
         return internalConnect();
       }
 
@@ -159,25 +168,27 @@ boolean OOCSI::internalConnect() {
 
 // function which checks for new messages or pings periodically
 void OOCSI::check() {
-  //check if we are connected to the WIFI
+  // check if we are connected to the WIFI
   if (WiFi.status() != WL_CONNECTED) {
-    //if not connect oocsi again
+    // if not connect oocsi again
     internalConnect();
   }
   if (!client.connected()) {
-    //reconnect client
+    // reconnect client
     internalConnect();
   }
 
-  String message;
-  while (client.available() && message.length() == 0) {
+  String message = "";
+  message.reserve(1024);
+  if (client.available() && message.length() == 0) {
     message = client.readStringUntil('\n');
   }
 
-  if (message.indexOf("ping") >= 0 || message == " " ) {
+  int pingIndex = message.indexOf("ping");
+  if ((pingIndex >= 0 && pingIndex < 10) || message == " " ) {
     // it's a heart beat, send one back
-    println("ping;");
     client.println(".\n");
+    println("ping");
     prevTime = millis();
   } else if (message.length() > 0) {
     // process the message
@@ -203,260 +214,147 @@ void OOCSI::check() {
   }
 }
 
+// function which prints the entire incoming message
 void OOCSI::printMessage() {
-  //function which prints the entire incoming message
   print(theMessage);
 }
 
-int OOCSI::getInt(const char* key, int standard) {
+boolean OOCSI::getBool(const char* key, bool standard) {
+  String result = listener.get(theMessage, key);
+  return result.length() > 0 ? result.equalsIgnoreCase("true") : standard;
+}
 
-  int index = theMessage.indexOf(*key);
-  if (index == -1) {
-    return standard;
-  } else {
-    index += strlen(key);
-    index = index + 2; //to get past the ": chars
-    int endindex = theMessage.indexOf(' ', index) - 1; //search for the first seperation char (a space)
-    //print("theindex is: ");
-    //println(index);
-    String numbers = theMessage.substring(index, endindex + 1);
-    int result = numbers.toInt();
-    return result;
-  }
+int OOCSI::getInt(const char* key, int standard) {
+  String result = listener.get(theMessage, key);
+  return result.length() > 0 ? result.toInt() : standard;
 }
 
 long OOCSI::getLong(const char* key, long standard) {
-
-  int index = theMessage.indexOf(key);
-  if (index == -1) {
-    return standard;
-  } else {
-    index += strlen(key);
-    index = index + 2; //to get past the ": chars
-    int endindex = theMessage.indexOf(' ', index) - 1; //search for the first seperation char (a space)
-    //print("theindex is: ");
-    //println(index);
-    String numbers = theMessage.substring(index, endindex + 1);
-    long result = numbers.toInt();
-    return result;
-  }
+  String result = listener.get(theMessage, key);
+  return result.length() > 0 ? (long) result.toInt() : standard;
 }
 
 float OOCSI::getFloat(const char* key, float standard) {
-  int index = theMessage.indexOf(key);
-  //print("theindex is: ");
-  //println(index);
-  if (index == -1) {
-    return standard;
-  } else {
-    index += strlen(key);
-    index = index + 2; //to get past the ": chars
-    int endindex = theMessage.indexOf(' ', index) - 1; //search for the first seperation char (a space)
-    //print("theindex is: ");
-    //println(index);
-    String numbers = theMessage.substring(index, endindex + 1);
-    float result = numbers.toFloat();
-    return result;
-  }
+  String result = listener.get(theMessage, key);
+  return result.length() > 0 ? result.toFloat() : standard;
 }
 
 String OOCSI::getString(const char* key, const char* standard) {
-  int index = theMessage.indexOf(key);
-  if (index == -1) {
-    return standard;
+  String result = listener.get(theMessage, key);
+  return result.length() > 0 ? result : standard;
+}
+
+void  OOCSI::getBoolArray(const char* key, bool standard[], bool* passArray, int arrayLength) {
+  String array = listener.getArray(theMessage, key);
+
+  if (array.length() == 0) {
+    passArray = standard;
   } else {
-    index += strlen(key) + 3; //to get past the ": chars
-    int endindex = theMessage.indexOf('"', index); //search for the end char a: "
-    String result = theMessage.substring(index, endindex);
-    return result;
+    int index = 0;
+    int endindex = array.indexOf(',', index);
+    int closingindex = array.length() - 1;    
+    for (int i = 0; i < arrayLength; i++) {
+      passArray[i] = array.substring(index, endindex).equalsIgnoreCase("true");
+
+      index = endindex + 1;
+      endindex = array.indexOf(',', index);
+      if (endindex == -1 && i < arrayLength - 1) {
+        passArray[i+1] = array.substring(index).equalsIgnoreCase("true");
+        break;
+      }
+    }
   }
 }
 
 void  OOCSI::getIntArray(const char* key, int standard[], int* passArray, int arrayLength) {
-  //array opens with [, closes with ], seperation with: , so example:"data:[1,2,3,4]"
-  int index = theMessage.indexOf(key);
-  if (index == -1) {
+  String array = listener.getArray(theMessage, key);
+
+  if (array.length() == 0) {
     passArray = standard;
   } else {
-    index += strlen(key) + 3;
-    int closingindex = theMessage.indexOf("]", index);
-    int endindex = theMessage.indexOf(',', index);
-    boolean breakAfter = false;
+    int index = 0;
+    int endindex = array.indexOf(',', index);
+    int closingindex = array.length() - 1;    
     for (int i = 0; i < arrayLength; i++) {
-      passArray[i] = theMessage.substring(index, endindex).toInt();
+      passArray[i] = array.substring(index, endindex).toInt();
+
       index = endindex + 1;
-      endindex = theMessage.indexOf(',', index);
-      if (breakAfter) {
+      endindex = array.indexOf(',', index);
+      if (endindex == -1 && i < arrayLength - 1) {
+        passArray[i+1] = array.substring(index).toInt();        
         break;
-      }
-      if (endindex == -1 || endindex >= closingindex) {
-        breakAfter = true;
       }
     }
   }
 }
 
 void OOCSI::getFloatArray(const char* key, float standard[], float* passArray, int arrayLength) {
-  //array opens with [, closes with ], seperation with: , so example:"data:[1,2,3,4]"
-  int index = theMessage.indexOf(key);
-  if (index == -1) {
+  String array = listener.getArray(theMessage, key);
+
+  if (array.length() == 0) {
     passArray = standard;
   } else {
-    index += strlen(key) + 3;
-    int closingindex = theMessage.indexOf("]", index);
-    int endindex = theMessage.indexOf(',', index);
-    boolean breakAfter = false;
+    int index = 0;
+    int endindex = array.indexOf(',', index);
+    int closingindex = array.length() - 1;    
     for (int i = 0; i < arrayLength; i++) {
-      passArray[i] = theMessage.substring(index, endindex).toFloat();
+      passArray[i] = array.substring(index, endindex).toFloat();
+
       index = endindex + 1;
-      endindex = theMessage.indexOf(',', index);
-      if (breakAfter) {
+      endindex = array.indexOf(',', index);
+      if (endindex == -1 && i < arrayLength - 1) {
+        passArray[i+1] = array.substring(index).toFloat();        
         break;
-      }
-      if (endindex == -1 || endindex >= closingindex) {
-        breakAfter = true;
       }
     }
   }
 }
 
-// void OOCSI::getStringArray(const char* key, char* standard[], char* passArray[], int arrayLength) {
-//   int index = theMessage.indexOf(key);
-//   if (index == -1) {
-//     passArray = standard;
-//   } else {
-//     index += strlen(key) + 3;
-//     int closingindex = theMessage.indexOf("]" , index);
-//     int endindex = theMessage.indexOf(',', index);
-//     boolean breakAfter = false;
-//     for (int i = 0; i < arrayLength; i++) {
-//       passArray[i] = theMessage.substring(index, endindex).c_str();
-//       index = endindex + 1;
-//       endindex = theMessage.indexOf(',', index);
-//       if (breakAfter) {
-//         break;
-//       }
-//       if (endindex == -1 || endindex >= closingindex) {
-//         breakAfter = true;
-//       }
-//     }
-//   }
-// }
+void OOCSI::getStringArray(const char* key, const char* standard[], char* passArray[], int arrayLength) {
+  String array = listener.getArray(theMessage, key);
+
+  if (array.length() == 0) {
+    for (int i = 0; i < arrayLength; i++) {
+      String temp = String(standard[i]);
+      temp.toCharArray(passArray[i], temp.length());
+    }
+  } else {
+    int index = 0;
+    int endindex = array.indexOf(',', index);
+    int closingindex = array.length() - 1;    
+    for (int i = 0; i < arrayLength; i++) {
+      array.substring(index + 1, endindex - 1).toCharArray(passArray[i], endindex-index);
+
+      index = endindex + 1;
+      endindex = array.indexOf(',', index);
+      if (endindex == -1 && i < arrayLength - 1 && index < closingindex) {
+        Serial.println(array.substring(index + 1, closingindex));
+        array.substring(index + 1, closingindex).toCharArray(passArray[i+1], closingindex - (index + 1));
+        break;
+      }
+    }
+  }
+}
 
 String OOCSI::getSender() {
-  int index = theMessage.indexOf("sender");
-  String result;
-  if (index == -1) {
-    result = "";
-    return result;
-  } else {
-    // sender has 6 chars + 3 for delimiters
-    index += 6 + 3;
-    int closingindex = theMessage.indexOf('"' , index);
-    result = theMessage.substring(index, closingindex);
-    return result;
-  }
+  return listener.get(theMessage, "sender");
 }
 
 String OOCSI::getRecipient() {
-  int index = theMessage.indexOf("recipient");
-  String result;
-  if (index == -1) {
-    result = "";
-    return result;
-  } else {
-    // recipient has 9 chars + 3 for delimiters
-    index += 9 + 3;
-    int closingindex = theMessage.indexOf('"' , index);
-    result = theMessage.substring(index, closingindex);
-    return result;
-  }
+  return listener.get(theMessage, "recipient");
 }
 
 long OOCSI::getTimeStamp() {
-  int index = theMessage.indexOf("timestamp");
-  if (index == -1) {
-    return -0;
-  } else {
-    // timestamp has 9 chars long + 2 for delimiters
-    index += 9 + 2;
-    int endindex = theMessage.indexOf(',', index) - 1; //search for the first seperation char (a comma)
-
-    //check if numbers is longer then 10 (to prevent overflowing the number)
-    // print("startindex: ");
-    // print(index);
-    // print("\tendindex: ");
-    // print(endindex);
-    if (endindex - index > 10) {
-      //cut the string
-      index = endindex - 9;
-    }
-    // print("\tstartindex2: ");
-    // println(index);
-    String numbers = theMessage.substring(index, endindex + 1);
-    // print("temp timestamp: ");
-    // println(numbers);
-
-    long result = numbers.toInt();
-    return result;
-  }
+  String numbers = listener.get(theMessage, "timestamp");
+  return numbers.length() > 9 ? numbers.substring(0, 10).toInt() : numbers.toInt();
 }
 
 boolean OOCSI::has(const char* key) {
-  int index = theMessage.indexOf(key);
-  if (index == -1) {
-    return false;
-  } else {
-    return true;
-  }
+  return listener.has(theMessage, key);
 }
 
 String OOCSI::keys() {
-  //function for outputting all the keys in the message
-  //after{ and before [, then after ]
-
-  int i = 0;
-  //first search for the first entry and the { , [ and ] symbols
-  int comma = theMessage.indexOf(',');
-  int bracket = theMessage.indexOf('{');
-  int endofKey = theMessage.indexOf(':');
-
-  //first key
-  String thekeys = "";
-  //get substring of key
-  String firstKey = theMessage.substring(bracket + 2, endofKey - 2);
-  thekeys.concat(firstKey);
-
-  String restMessage = theMessage.substring(endofKey + 1);
-  boolean gotKeys = true;
-
-  while (gotKeys) {
-    //go through the message.
-    //check for the smallest sentence
-    //finding the next either after a , or {
-    comma = restMessage.indexOf(',');
-    bracket = restMessage.indexOf('{');
-    endofKey = restMessage.indexOf(':');
-
-    //check if there still is a key otherwise break
-    if (comma == -1 && bracket == -1) {
-      gotKeys = false;
-      break;
-    }
-    String tempkey;
-    if (bracket > comma) {
-      //use the comma as entry point
-      tempkey = restMessage.substring(comma + 2, endofKey - 2); //+2 to skip over
-
-    } else {
-      tempkey = restMessage.substring(bracket + 2, endofKey - 2);
-    }
-
-    thekeys.concat(", ");
-    thekeys.concat(tempkey);
-    //now reitterate again.
-    restMessage = restMessage.substring(endofKey + 1);
-  }
+  return listener.keys(theMessage);
 }
 
 // function for setting up a new message for sending over OOCSI
@@ -466,6 +364,24 @@ OOCSI OOCSI::newMessage(const char* receiver) {
   outgoingMessage.concat(receiver);
   outgoingMessage.concat(" {");
   firstval = true;
+
+  return *this;
+}
+
+// function for sending a bool to OOCSI
+OOCSI OOCSI::addBool(const char* key, bool value) {
+  if (firstval) {
+    outgoingMessage.concat('"');
+    firstval = false;
+  } else {
+    outgoingMessage.concat(',');
+    outgoingMessage.concat('"');
+  }
+  outgoingMessage.concat(key);
+  outgoingMessage.concat('"');
+  outgoingMessage.concat(':');
+  String no = value ? "true" : "false";
+  outgoingMessage.concat(no);
 
   return *this;
 }
@@ -538,6 +454,31 @@ OOCSI OOCSI::addString(const char* key, const char* value) {
   outgoingMessage.concat('"');
   outgoingMessage.concat(value);
   outgoingMessage.concat('"');
+
+  return *this;
+}
+
+// function for sending an array of bools
+OOCSI OOCSI::addBoolArray(const char* key, bool* value, int len) {
+  if (firstval) {
+    outgoingMessage.concat('"');
+    firstval = false;
+  } else {
+    outgoingMessage.concat(',');
+    outgoingMessage.concat('"');
+  }
+  outgoingMessage.concat(key);
+  outgoingMessage.concat('"');
+  outgoingMessage.concat(':');
+  outgoingMessage.concat('[');
+  for (int i = 0; i < len; i++) {
+    String no = value[i] ? "true" : "false";
+    outgoingMessage.concat(no);
+    if (i < len - 1) {
+      outgoingMessage.concat(',');
+    }
+  }
+  outgoingMessage.concat(']');
 
   return *this;
 }
@@ -639,10 +580,10 @@ String OOCSI::getClients() {
   client.println("clients");
   String message;
   //keep waiting for a message
-  while (!client.available()) {
+  while (!client.available()) {  yield();
     delay(20);
   }
-  while (client.available()) {
+  while (client.available()) {  yield();
     message = client.readStringUntil('\n');
   }
   return message;
@@ -656,10 +597,10 @@ String OOCSI::getChannels() {
   client.println("channels");
   String message;
   //keep waiting for a message
-  while (!client.available()) {
+  while (!client.available()) {  yield();
     delay(20);
   }
-  while (client.available()) {
+  while (client.available()) {  yield();
     message = client.readStringUntil('\n');
   }
   return message;
@@ -677,28 +618,35 @@ boolean OOCSI::containsClient(const char* clientName) {
 }
 
 void OOCSI::print(const String &message) {
-  if(logging)
+  if(logging) {
     Serial.print(message);
+  }
 }
 
 void OOCSI::print(char message) {
-  if(logging)
+  if(logging) {
     Serial.print(message);
+  }
 }
 
 void OOCSI::println() {
-  if(logging)
+  if(logging) {
     Serial.println();
+  }
 }
 
 void OOCSI::println(const String &message) {
-  if(logging)
-    Serial.println(message);
+  if(logging) {
+    Serial.print("\nOOCSI: ");
+    Serial.print(message);
+  }
 }
 
 void OOCSI::println(char message) {
-  if(logging)
-    Serial.println(message);
+  if(logging) {
+    Serial.print("\nOOCSI: ");
+    Serial.print(message);
+  }
 }
 
 void OOCSI::setActivityLEDPin(int ledPin) {

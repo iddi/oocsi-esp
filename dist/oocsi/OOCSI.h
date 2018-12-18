@@ -32,10 +32,12 @@ class OOCSI{
 
     // sending data
     OOCSI newMessage(const char* receiver);
+    OOCSI addBool(const char* key, bool value);
     OOCSI addInt(const char* key, int value);
     OOCSI addLong(const char* key, long value);
     OOCSI addFloat(const char* key, float value);
     OOCSI addString(const char* key, const char* value);
+    OOCSI addBoolArray(const char* key, bool* value, int len);
     OOCSI addIntArray(const char* key, int* value, int len);
     OOCSI addFloatArray(const char* key, float* value, int len);
     OOCSI addStringArray(const char* key, const char* value, int len);
@@ -45,10 +47,12 @@ class OOCSI{
     // receiving data
     String getSender();
     String getRecipient();
+    bool getBool(const char* key, bool standard);
     int getInt(const char* key, int standard);
     long getLong(const char* key, long standard);
     float getFloat(const char* key, float standard);
     String getString(const char* key, const char* standard);
+    void getBoolArray(const char* key, bool standard[], bool* passArray, int arrayLength);
     void getIntArray(const char* key, int standard[], int* passArray, int arrayLength);
     void getFloatArray(const char* key, float standard[], float* passArray, int arrayLength);
     void getStringArray(const char* key, const char* standard[], char* passArray[], int arrayLength);

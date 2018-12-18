@@ -64,7 +64,7 @@ void OOCSI::connectWifi() {
   println("Connecting to Wifi");
   boolean connected = false;
 
-  while (WiFi.status() != WL_CONNECTED && counter++ < 50) {
+  while (WiFi.status() != WL_CONNECTED && counter++ < 50) {  yield();
     if (WiFi.status() == WL_CONNECTED) {
       if (counter > 0) {
         println("Wifi connection established");
@@ -118,7 +118,7 @@ void OOCSI::unsubscribe(const char* chan) {
 boolean OOCSI::internalConnect() {
   
   // keep connecting the wifi
-  while (manageWifi && WiFi.status() != WL_CONNECTED) {
+  while (manageWifi && WiFi.status() != WL_CONNECTED) {  yield();
     connectWifi();
   }
 
@@ -139,10 +139,11 @@ boolean OOCSI::internalConnect() {
   } else {
     // continue with client-server handshake
     client.println(OOCSIName);
+    client.setTimeout(500);
 
     // wait for a response from the server (max. 20 sec)
     int waitingResponseCounter = 0;
-    while (!client.available() && waitingResponseCounter++ < 40) {
+    while (!client.available() && waitingResponseCounter++ < 40) {  yield();
       print(".");
       delay(200);
     }
@@ -177,12 +178,14 @@ void OOCSI::check() {
     internalConnect();
   }
 
-  String message;
-  while (client.available() && message.length() == 0) {
+  String message = "";
+  message.reserve(1024);
+  if (client.available() && message.length() == 0) {
     message = client.readStringUntil('\n');
   }
 
-  if (message.indexOf("ping") >= 0 || message == " " ) {
+  int pingIndex = message.indexOf("ping");
+  if ((pingIndex >= 0 && pingIndex < 10) || message == " " ) {
     // it's a heart beat, send one back
     client.println(".\n");
     println("ping");
@@ -216,6 +219,11 @@ void OOCSI::printMessage() {
   print(theMessage);
 }
 
+boolean OOCSI::getBool(const char* key, bool standard) {
+  String result = listener.get(theMessage, key);
+  return result.length() > 0 ? result.equalsIgnoreCase("true") : standard;
+}
+
 int OOCSI::getInt(const char* key, int standard) {
   String result = listener.get(theMessage, key);
   return result.length() > 0 ? result.toInt() : standard;
@@ -234,6 +242,28 @@ float OOCSI::getFloat(const char* key, float standard) {
 String OOCSI::getString(const char* key, const char* standard) {
   String result = listener.get(theMessage, key);
   return result.length() > 0 ? result : standard;
+}
+
+void  OOCSI::getBoolArray(const char* key, bool standard[], bool* passArray, int arrayLength) {
+  String array = listener.getArray(theMessage, key);
+
+  if (array.length() == 0) {
+    passArray = standard;
+  } else {
+    int index = 0;
+    int endindex = array.indexOf(',', index);
+    int closingindex = array.length() - 1;    
+    for (int i = 0; i < arrayLength; i++) {
+      passArray[i] = array.substring(index, endindex).equalsIgnoreCase("true");
+
+      index = endindex + 1;
+      endindex = array.indexOf(',', index);
+      if (endindex == -1 && i < arrayLength - 1) {
+        passArray[i+1] = array.substring(index).equalsIgnoreCase("true");
+        break;
+      }
+    }
+  }
 }
 
 void  OOCSI::getIntArray(const char* key, int standard[], int* passArray, int arrayLength) {
@@ -338,6 +368,24 @@ OOCSI OOCSI::newMessage(const char* receiver) {
   return *this;
 }
 
+// function for sending a bool to OOCSI
+OOCSI OOCSI::addBool(const char* key, bool value) {
+  if (firstval) {
+    outgoingMessage.concat('"');
+    firstval = false;
+  } else {
+    outgoingMessage.concat(',');
+    outgoingMessage.concat('"');
+  }
+  outgoingMessage.concat(key);
+  outgoingMessage.concat('"');
+  outgoingMessage.concat(':');
+  String no = value ? "true" : "false";
+  outgoingMessage.concat(no);
+
+  return *this;
+}
+
 // function for sending an int to OOCSI
 OOCSI OOCSI::addInt(const char* key, int value) {
   if (firstval) {
@@ -406,6 +454,31 @@ OOCSI OOCSI::addString(const char* key, const char* value) {
   outgoingMessage.concat('"');
   outgoingMessage.concat(value);
   outgoingMessage.concat('"');
+
+  return *this;
+}
+
+// function for sending an array of bools
+OOCSI OOCSI::addBoolArray(const char* key, bool* value, int len) {
+  if (firstval) {
+    outgoingMessage.concat('"');
+    firstval = false;
+  } else {
+    outgoingMessage.concat(',');
+    outgoingMessage.concat('"');
+  }
+  outgoingMessage.concat(key);
+  outgoingMessage.concat('"');
+  outgoingMessage.concat(':');
+  outgoingMessage.concat('[');
+  for (int i = 0; i < len; i++) {
+    String no = value[i] ? "true" : "false";
+    outgoingMessage.concat(no);
+    if (i < len - 1) {
+      outgoingMessage.concat(',');
+    }
+  }
+  outgoingMessage.concat(']');
 
   return *this;
 }
@@ -507,10 +580,10 @@ String OOCSI::getClients() {
   client.println("clients");
   String message;
   //keep waiting for a message
-  while (!client.available()) {
+  while (!client.available()) {  yield();
     delay(20);
   }
-  while (client.available()) {
+  while (client.available()) {  yield();
     message = client.readStringUntil('\n');
   }
   return message;
@@ -524,10 +597,10 @@ String OOCSI::getChannels() {
   client.println("channels");
   String message;
   //keep waiting for a message
-  while (!client.available()) {
+  while (!client.available()) {  yield();
     delay(20);
   }
-  while (client.available()) {
+  while (client.available()) {  yield();
     message = client.readStringUntil('\n');
   }
   return message;
