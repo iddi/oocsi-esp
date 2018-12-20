@@ -219,7 +219,7 @@ void OOCSI::printMessage() {
   print(theMessage);
 }
 
-boolean OOCSI::getBool(const char* key, bool standard) {
+bool OOCSI::getBool(const char* key, bool standard) {
   String result = listener.get(theMessage, key);
   return result.length() > 0 ? result.equalsIgnoreCase("true") : standard;
 }
