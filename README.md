@@ -162,7 +162,7 @@ The library can use an LED to signal activity. Use this by switching the respect
 
 ## Credits
 Initial development: Jort Band
-
 Stable version and maintenance: Mathias Funk
+Testing and support: Henk Apeldoorn, Geert van den Boomen, Dirk van de Mortel
 
 Find the OOCSI mothership project at https://github.com/iddi/oocsi
