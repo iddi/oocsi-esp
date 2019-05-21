@@ -26,6 +26,7 @@ class OOCSI{
     OOCSI();
     boolean connect(const char* Name, const char* hostServer, void (*func)());
     boolean connect(const char* Name, const char* hostServer, const char* Wifissid, const char* wifipassword, void (*func)());
+    void disconnect();
     void check();
     void subscribe(const char* chan);
     void unsubscribe(const char* chan);

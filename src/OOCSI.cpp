@@ -56,6 +56,13 @@ boolean OOCSI::connect(const char* name, const char* hostServer, const char* Wif
   internalConnect();
 }
 
+void OOCSI::disconnect() {
+    client.println("quit");
+    client.stop();
+    theMessage = "";
+    WiFi.disconnect();
+}
+
 // function for connecting wifi, setup and reconnection is handled automagically
 void OOCSI::connectWifi() {
   WiFi.mode(WIFI_STA);
