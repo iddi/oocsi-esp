@@ -8,71 +8,45 @@
  **************************************************************************/
 
 #include "OOCSI.h"
-#include "OOCSIJsonParser.h"
-#include "JsonStreamingParser.h"
-
 
 // function for creating an OOCSI client
 OOCSI::OOCSI() {
   activityLEDPin = -1;
   logging = true;
-
-  parser.setListener(&listener);
 }
 
 // function for connecting first to OOCSI
-boolean OOCSI::connect(const char* name, const char* hostServer, void(*func)()) {
+bool OOCSI::connect(const char* name, const char* hostServer, void(*func)()) {
   receivedMessage = false;
-  theMessage = "";
-  theMessage.reserve(4096);
   processMessage = func;
-  manageWifi = false;
 
-  OOCSIName = "";
-  OOCSIName.concat(name);
-  OOCSIName.concat("(JSON)");
-  OOCSIName.concat('\n');
+  OOCSIName = name;
   host = hostServer;
 
   internalConnect();
 }
 
 // function for connecting first to WIFI then to OOCSI
-boolean OOCSI::connect(const char* name, const char* hostServer, const char* Wifissid, const char* Wifipassword, void (*func)()) {
-  receivedMessage = false;
-  theMessage = "";
-  theMessage.reserve(4096);
-  processMessage = func;
+bool OOCSI::connect(const char* name, const char* hostServer, const char* Wifissid, const char* Wifipassword, void (*func)()) {
   ssid = Wifissid;
   password = Wifipassword;
   manageWifi = true;
 
-  OOCSIName = "";
-  OOCSIName.concat(name);
-  OOCSIName.concat("(JSON)");
-  OOCSIName.concat('\n');
-  host = hostServer;
-
-  internalConnect();
+  return connect(name, hostServer, func);
 }
 
 // function for connecting wifi, setup and reconnection is handled automagically
 void OOCSI::connectWifi() {
-  WiFi.mode(WIFI_STA);
+
+  if(WiFi.status() == WL_CONNECTED) {
+    return;
+  }
+
+  print(F("Connecting to Wifi"));
+
   WiFi.begin(ssid, password);
   int counter = 0;
-  println("Connecting to Wifi");
-  boolean connected = false;
-
-  while (WiFi.status() != WL_CONNECTED && counter++ < 50) {  yield();
-    if (WiFi.status() == WL_CONNECTED) {
-      if (counter > 0) {
-        println("Wifi connection established");
-      }
-      connected = true;
-      break;
-    }
-
+  while (WiFi.status() != WL_CONNECTED && counter++ < 500) {
     if(activityLEDPin > -1) {
       digitalWrite(activityLEDPin, HIGH);
       delay(20);
@@ -86,66 +60,78 @@ void OOCSI::connectWifi() {
     print(".");
 
     // new line
-    if (counter % 80 == 0) {
-      println("Connecting to Wifi");
+    if (counter % 20 == 0) {
+      println();
+      print(F("Connecting to Wifi"));
+      WiFi.begin(ssid, password);
     }
 
     // wait before next attempt
-    delay(200);
+    delay(1000);
   }
-  if (!connected && WiFi.status() != WL_CONNECTED ) {
-    println("Wifi connection attempt failed");
+
+  if (WiFi.status() != WL_CONNECTED) {
+    println(F("connection attempt failed"));
   }
+}
+
+void OOCSI::disconnect() {
+    client.println(F("quit"));
+    client.stop();
+    if (manageWifi) {
+      WiFi.disconnect();
+    }
 }
 
 // function for subscribing to an OOCSI channel, function can be called multiple times
 void OOCSI::subscribe(const char* chan) {
-  String channel = "";
-  channel.concat("subscribe ");
+  String channel = "subscribe ";
   channel.concat(chan);
   client.println(channel);
 }
 
 // function for unsubscribing from an OOCSI channel, function can be called multiple times
 void OOCSI::unsubscribe(const char* chan) {
-  String channel = "";
-  channel.concat("unsubscribe ");
+  String channel = "unsubscribe ";
   channel.concat(chan);
   client.println(channel);
 }
 
 // function to internally connect to OOCSI (needs all variables set up)
-boolean OOCSI::internalConnect() {
-  
-  // keep connecting the wifi
-  while (manageWifi && WiFi.status() != WL_CONNECTED) {  yield();
+bool OOCSI::internalConnect() {
+  if (manageWifi) {
     connectWifi();
   }
 
-  // only then connect OOCSI
-  println();
-  println("Connecting to OOCSI");
-
   static int connectionAttemptCounter = 0;
+  if(connectionAttemptCounter == 0) {
+    println();
+    print(F("Connecting to OOCSI"));
+  }
+
   if (!client.connect(host, port)) {
-    // it failed. so do it again
+    print('_');
+
+    //then it failed. so do it again
     if (connectionAttemptCounter++ < 100) {
+      delay(250);
       internalConnect();
-      print(".");
     } else {
-      println("setting up OOCSI Connection failed");
+      println();
+      println(F("OOCSI Connection failed"));
       return false;
     }
   } else {
+    print("[x] ");
     // continue with client-server handshake
-    client.println(OOCSIName);
-    client.setTimeout(500);
+    client.print(OOCSIName);
+    client.println(F("(JSON)"));
 
     // wait for a response from the server (max. 20 sec)
     int waitingResponseCounter = 0;
-    while (!client.available() && waitingResponseCounter++ < 40) {  yield();
-      print(".");
-      delay(200);
+    while (!client.available() && waitingResponseCounter++ < 40) {
+      print('_');
+      delay(250);
     }
 
     if (client.available()) {
@@ -155,10 +141,11 @@ boolean OOCSI::internalConnect() {
 
       if (message.indexOf("welcome") == -1) {
         // wait before connecting again
-        delay(1000);
+        delay(2000);
         return internalConnect();
       }
 
+      println();
       return true;
     } else {
       return false;
@@ -168,407 +155,281 @@ boolean OOCSI::internalConnect() {
 
 // function which checks for new messages or pings periodically
 void OOCSI::check() {
-  // check if we are connected to the WIFI
-  if (WiFi.status() != WL_CONNECTED) {
-    // if not connect oocsi again
-    internalConnect();
-  }
-  if (!client.connected()) {
-    // reconnect client
+  //check if we are connected to the WIFI and the OOCSI server
+  if (WiFi.status() != WL_CONNECTED || !client.connected()) {
+    //if not connect oocsi again
     internalConnect();
   }
 
-  String message = "";
-  message.reserve(1024);
-  if (client.available() && message.length() == 0) {
+  int messageCount = 0;
+  String message;
+  while (client.available() && messageCount++ < 20) {
     message = client.readStringUntil('\n');
-  }
 
-  int pingIndex = message.indexOf("ping");
-  if ((pingIndex >= 0 && pingIndex < 10) || message == " " ) {
-    // it's a heart beat, send one back
-    client.println(".\n");
-    println("ping");
-    prevTime = millis();
-  } else if (message.length() > 0) {
-    // process the message
-    theMessage = message;
-    receivedMessage = true;
-    processMessage();
-    
-    if(activityLEDPin > -1) {
-      delay(20);
-      digitalWrite(activityLEDPin, HIGH);
-      delay(20);
-      digitalWrite(activityLEDPin, LOW);
-      delay(20);
-      digitalWrite(activityLEDPin, HIGH);
-      delay(20);
-      digitalWrite(activityLEDPin, LOW);
+    if (message.indexOf("ping") >= 0 || message == " " ) {
+      // it's a heart beat, send one back
+      println(F("ping;"));
+      client.println('.');
+      prevTime = millis();
+    } else if (message.length() > 0) {
+      // it's a real message, handle it
+      DeserializationError error = deserializeJson(jsonDocument, message.c_str());
+      if (error) {
+        print(F("Message parsing failed: "));
+        println(error.c_str());
+        receivedMessage = false;
+      }
+      receivedMessage = true;
+      processMessage();
+
+      if(activityLEDPin > -1) {
+        delay(20);
+        digitalWrite(activityLEDPin, HIGH);
+        delay(20);
+        digitalWrite(activityLEDPin, LOW);
+        delay(20);
+        digitalWrite(activityLEDPin, HIGH);
+        delay(20);
+        digitalWrite(activityLEDPin, LOW);
+      }
     }
+    yield();
   }
 
+  // client-side ping
   if (millis() - prevTime > 30000) {
-    client.println(".");
+    client.println('.');
     prevTime = millis();
   }
 }
 
 // function which prints the entire incoming message
 void OOCSI::printMessage() {
-  print(theMessage);
+  serializeJson(jsonDocument, Serial);
 }
 
 bool OOCSI::getBool(const char* key, bool standard) {
-  String result = listener.get(theMessage, key);
-  return result.length() > 0 ? result.equalsIgnoreCase("true") : standard;
+  if(jsonDocument.isNull() || !jsonDocument.containsKey(key)) {
+    return standard;
+  } else {
+    return jsonDocument[key].as<bool>();
+  }
 }
 
 int OOCSI::getInt(const char* key, int standard) {
-  String result = listener.get(theMessage, key);
-  return result.length() > 0 ? result.toInt() : standard;
+  if(jsonDocument.isNull() || !jsonDocument.containsKey(key)) {
+    return standard;
+  } else {
+    return jsonDocument[key].as<int>();
+  }
 }
 
 long OOCSI::getLong(const char* key, long standard) {
-  String result = listener.get(theMessage, key);
-  return result.length() > 0 ? (long) result.toInt() : standard;
+  if(jsonDocument.isNull() || !jsonDocument.containsKey(key)) {
+    return standard;
+  } else {
+    return jsonDocument[key].as<long>();
+  }
 }
 
 float OOCSI::getFloat(const char* key, float standard) {
-  String result = listener.get(theMessage, key);
-  return result.length() > 0 ? result.toFloat() : standard;
+  if(jsonDocument.isNull() || !jsonDocument.containsKey(key)) {
+    return standard;
+  } else {
+    return jsonDocument[key].as<float>();
+  }
 }
 
 String OOCSI::getString(const char* key, const char* standard) {
-  String result = listener.get(theMessage, key);
-  return result.length() > 0 ? result : standard;
+  if(jsonDocument.isNull() || !jsonDocument.containsKey(key)) {
+    return standard;
+  } else {
+    return jsonDocument[key].as<String>();
+  }
 }
 
-void  OOCSI::getBoolArray(const char* key, bool standard[], bool* passArray, int arrayLength) {
-  String array = listener.getArray(theMessage, key);
-
-  if (array.length() == 0) {
+void  OOCSI::getBoolArray(const char* key, bool* standard, bool* passArray, int arrayLength) {
+  if(jsonDocument.isNull() || !jsonDocument.containsKey(key)) {
     passArray = standard;
   } else {
-    int index = 0;
-    int endindex = array.indexOf(',', index);
-    int closingindex = array.length() - 1;    
-    for (int i = 0; i < arrayLength; i++) {
-      passArray[i] = array.substring(index, endindex).equalsIgnoreCase("true");
-
-      index = endindex + 1;
-      endindex = array.indexOf(',', index);
-      if (endindex == -1 && i < arrayLength - 1) {
-        passArray[i+1] = array.substring(index).equalsIgnoreCase("true");
-        break;
-      }
+    JsonArray array = jsonDocument[key].as<JsonArray>();
+    for(int i = 0; i < arrayLength; i++) {
+        passArray[i] = array[i].as<bool>();
     }
   }
 }
 
-void  OOCSI::getIntArray(const char* key, int standard[], int* passArray, int arrayLength) {
-  String array = listener.getArray(theMessage, key);
-
-  if (array.length() == 0) {
+void  OOCSI::getIntArray(const char* key, int* standard, int* passArray, int arrayLength) {
+  if(jsonDocument.isNull() || !jsonDocument.containsKey(key)) {
     passArray = standard;
   } else {
-    int index = 0;
-    int endindex = array.indexOf(',', index);
-    int closingindex = array.length() - 1;    
-    for (int i = 0; i < arrayLength; i++) {
-      passArray[i] = array.substring(index, endindex).toInt();
-
-      index = endindex + 1;
-      endindex = array.indexOf(',', index);
-      if (endindex == -1 && i < arrayLength - 1) {
-        passArray[i+1] = array.substring(index).toInt();        
-        break;
-      }
+    JsonArray array = jsonDocument[key].as<JsonArray>();
+    for(int i = 0; i < arrayLength; i++) {
+        passArray[i] = array[i].as<int>();
     }
   }
 }
 
-void OOCSI::getFloatArray(const char* key, float standard[], float* passArray, int arrayLength) {
-  String array = listener.getArray(theMessage, key);
-
-  if (array.length() == 0) {
+void  OOCSI::getLongArray(const char* key, long* standard, long* passArray, int arrayLength) {
+  if(jsonDocument.isNull() || !jsonDocument.containsKey(key)) {
     passArray = standard;
   } else {
-    int index = 0;
-    int endindex = array.indexOf(',', index);
-    int closingindex = array.length() - 1;    
-    for (int i = 0; i < arrayLength; i++) {
-      passArray[i] = array.substring(index, endindex).toFloat();
-
-      index = endindex + 1;
-      endindex = array.indexOf(',', index);
-      if (endindex == -1 && i < arrayLength - 1) {
-        passArray[i+1] = array.substring(index).toFloat();        
-        break;
-      }
+    JsonArray array = jsonDocument[key].as<JsonArray>();
+    for(int i = 0; i < arrayLength; i++) {
+        passArray[i] = array[i].as<long>();
     }
   }
 }
 
-void OOCSI::getStringArray(const char* key, const char* standard[], char* passArray[], int arrayLength) {
-  String array = listener.getArray(theMessage, key);
-
-  if (array.length() == 0) {
-    for (int i = 0; i < arrayLength; i++) {
-      String temp = String(standard[i]);
-      temp.toCharArray(passArray[i], temp.length());
-    }
+void OOCSI::getFloatArray(const char* key, float* standard, float* passArray, int arrayLength) {
+  if(jsonDocument.isNull() || !jsonDocument.containsKey(key)) {
+    passArray = standard;
   } else {
-    int index = 0;
-    int endindex = array.indexOf(',', index);
-    int closingindex = array.length() - 1;    
-    for (int i = 0; i < arrayLength; i++) {
-      array.substring(index + 1, endindex - 1).toCharArray(passArray[i], endindex-index);
+    JsonArray array = jsonDocument[key].as<JsonArray>();
+    for(int i = 0; i < arrayLength; i++) {
+        passArray[i] = array[i].as<float>();
+    }
+  }
+}
 
-      index = endindex + 1;
-      endindex = array.indexOf(',', index);
-      if (endindex == -1 && i < arrayLength - 1 && index < closingindex) {
-        Serial.println(array.substring(index + 1, closingindex));
-        array.substring(index + 1, closingindex).toCharArray(passArray[i+1], closingindex - (index + 1));
-        break;
-      }
+void OOCSI::getStringArray(const char* key, String standard[], String passArray[], int arrayLength) {
+  if(jsonDocument.isNull() || !jsonDocument.containsKey(key)) {
+    passArray = standard;
+  } else {
+    JsonArray array = jsonDocument[key].as<JsonArray>();
+    for(int i = 0; i < arrayLength; i++) {
+        passArray[i] = array[i].as<String>();
     }
   }
 }
 
 String OOCSI::getSender() {
-  return listener.get(theMessage, "sender");
+  return getString("sender", "");
 }
 
 String OOCSI::getRecipient() {
-  return listener.get(theMessage, "recipient");
+  return getString("recipient", "");
 }
 
 long OOCSI::getTimeStamp() {
-  String numbers = listener.get(theMessage, "timestamp");
-  return numbers.length() > 9 ? numbers.substring(0, 10).toInt() : numbers.toInt();
+  return getLong("timestamp", -1);
 }
 
-boolean OOCSI::has(const char* key) {
-  return listener.has(theMessage, key);
+bool OOCSI::has(const char* key) {
+  return jsonDocument.containsKey(key);
 }
 
+// function for outputting all (top-level) keys in the message as a comma-separated list
 String OOCSI::keys() {
-  return listener.keys(theMessage);
+  if(jsonDocument.isNull() || jsonDocument.size() == 0) {
+    return "";
+  }
+
+  // comma separated key list
+  String result = "";
+  for (JsonPair p : jsonDocument.as<JsonObject>()) {
+      if(result.length() > 0) {
+        result.concat(",");  
+      }
+      result.concat(p.key().c_str());
+  }
+  return result;
 }
 
 // function for setting up a new message for sending over OOCSI
 OOCSI OOCSI::newMessage(const char* receiver) {
-  //basically clears the old message and sets the receiver
-  outgoingMessage = "sendraw ";
-  outgoingMessage.concat(receiver);
-  outgoingMessage.concat(" {");
-  firstval = true;
-
+  jsonMessage = StaticJsonDocument<MSG_SIZE>();
+  jsonMessageReceiver = receiver;
   return *this;
 }
 
 // function for sending a bool to OOCSI
 OOCSI OOCSI::addBool(const char* key, bool value) {
-  if (firstval) {
-    outgoingMessage.concat('"');
-    firstval = false;
-  } else {
-    outgoingMessage.concat(',');
-    outgoingMessage.concat('"');
-  }
-  outgoingMessage.concat(key);
-  outgoingMessage.concat('"');
-  outgoingMessage.concat(':');
-  String no = value ? "true" : "false";
-  outgoingMessage.concat(no);
-
+  jsonMessage[key] = value;
   return *this;
 }
 
 // function for sending an int to OOCSI
 OOCSI OOCSI::addInt(const char* key, int value) {
-  if (firstval) {
-    outgoingMessage.concat('"');
-    firstval = false;
-  } else {
-    outgoingMessage.concat(',');
-    outgoingMessage.concat('"');
-  }
-  outgoingMessage.concat(key);
-  outgoingMessage.concat('"');
-  outgoingMessage.concat(':');
-  String no = String(value, DEC);
-  outgoingMessage.concat(no);
-
+  jsonMessage[key] = value;
   return *this;
 }
 
 // function for sending an int to OOCSI
 OOCSI OOCSI::addLong(const char* key, long value) {
-  if (firstval) {
-    outgoingMessage.concat('"');
-    firstval = false;
-  } else {
-    outgoingMessage.concat(',');
-    outgoingMessage.concat('"');
-  }
-  outgoingMessage.concat(key);
-  outgoingMessage.concat('"');
-  outgoingMessage.concat(':');
-  String no = String(value, DEC);
-  outgoingMessage.concat(no);
-
+  jsonMessage[key] = value;
   return *this;
 }
 
 // function for sending a float to OOCSI
 OOCSI OOCSI::addFloat(const char* key, float value) {
-  if (firstval) {
-    outgoingMessage.concat('"');
-    firstval = false;
-  } else {
-    outgoingMessage.concat(',');
-    outgoingMessage.concat('"');
-  }
-  outgoingMessage.concat(key);
-  outgoingMessage.concat('"');
-  outgoingMessage.concat(':');
-  String no = String(value, DEC);
-  outgoingMessage.concat(no);
-
+  jsonMessage[key] = value;
   return *this;
 }
 
 OOCSI OOCSI::addString(const char* key, const char* value) {
-  if (firstval) {
-    outgoingMessage.concat('"');
-    firstval = false;
-  } else {
-    outgoingMessage.concat(',');
-    outgoingMessage.concat('"');
-  }
-  outgoingMessage.concat(key);
-  outgoingMessage.concat('"');
-  outgoingMessage.concat(':');
-  outgoingMessage.concat('"');
-  outgoingMessage.concat(value);
-  outgoingMessage.concat('"');
-
+  jsonMessage[key] = value;
   return *this;
 }
 
-// function for sending an array of bools
+// function for sending an array of bool values
 OOCSI OOCSI::addBoolArray(const char* key, bool* value, int len) {
-  if (firstval) {
-    outgoingMessage.concat('"');
-    firstval = false;
-  } else {
-    outgoingMessage.concat(',');
-    outgoingMessage.concat('"');
+  JsonArray array = jsonMessage.createNestedArray(key);
+  for(int i = 0; i < len; i++) {
+    array.add(value[i]);
   }
-  outgoingMessage.concat(key);
-  outgoingMessage.concat('"');
-  outgoingMessage.concat(':');
-  outgoingMessage.concat('[');
-  for (int i = 0; i < len; i++) {
-    String no = value[i] ? "true" : "false";
-    outgoingMessage.concat(no);
-    if (i < len - 1) {
-      outgoingMessage.concat(',');
-    }
-  }
-  outgoingMessage.concat(']');
-
   return *this;
 }
 
-// function for sending an array of ints
+// function for sending an array of int values
 OOCSI OOCSI::addIntArray(const char* key, int* value, int len) {
-  if (firstval) {
-    outgoingMessage.concat('"');
-    firstval = false;
-  } else {
-    outgoingMessage.concat(',');
-    outgoingMessage.concat('"');
+  JsonArray array = jsonMessage.createNestedArray(key);
+  for(int i = 0; i < len; i++) {
+    array.add(value[i]);
   }
-  outgoingMessage.concat(key);
-  outgoingMessage.concat('"');
-  outgoingMessage.concat(':');
-  outgoingMessage.concat('[');
-  for (int i = 0; i < len; i++) {
-    String no = String(value[i], DEC);
-    outgoingMessage.concat(no);
-    if (i < len - 1) {
-      outgoingMessage.concat(',');
-    }
-  }
-  outgoingMessage.concat(']');
-
   return *this;
 }
 
-// function for sending an array of floats
+// function for sending an array of long values
+OOCSI OOCSI::addLongArray(const char* key, long* value, int len) {
+  JsonArray array = jsonMessage.createNestedArray(key);
+  for(int i = 0; i < len; i++) {
+    array.add(value[i]);
+  }
+  return *this;
+}
+
+// function for sending an array of float values
 OOCSI OOCSI::addFloatArray(const char* key, float* value, int len) {
-  if (firstval) {
-    outgoingMessage.concat('"');
-    firstval = false;
-  } else {
-    outgoingMessage.concat(',');
-    outgoingMessage.concat('"');
+  JsonArray array = jsonMessage.createNestedArray(key);
+  for(int i = 0; i < len; i++) {
+    array.add(value[i]);
   }
-  outgoingMessage.concat(key);
-  outgoingMessage.concat('"');
-  outgoingMessage.concat(':');
-  outgoingMessage.concat('[');
-  for (int i = 0; i < len; i++) {
-    String no = String(value[i], DEC);
-    outgoingMessage.concat(no);
-    if (i < len - 1) {
-      outgoingMessage.concat(',');
-    }
-  }
-  outgoingMessage.concat(']');
-
   return *this;
 }
 
-//function for sending an array of Strings
-OOCSI OOCSI::addStringArray(const char* key, const char* value, int len) {
-  if (firstval) {
-    outgoingMessage.concat('"');
-    firstval = false;
-  } else {
-    outgoingMessage.concat(',');
-    outgoingMessage.concat('"');
+// function for sending an array of Strings
+OOCSI OOCSI::addStringArray(const char* key, String value[], int len) {
+  JsonArray array = jsonMessage.createNestedArray(key);
+  for(int i = 0; i < len; i++) {
+    array.add(value[i]);
   }
-  outgoingMessage.concat(key);
-  outgoingMessage.concat('"');
-  outgoingMessage.concat(':');
-  outgoingMessage.concat('[');
-  for (int i = 0; i < len; i++) {
-    outgoingMessage.concat('"');
-    outgoingMessage.concat(value[i]);
-    outgoingMessage.concat('"');
-    if (i < len - 1) {
-      outgoingMessage.concat(',');
-    }
-  }
-  outgoingMessage.concat(']');
-
   return *this;
 }
 
 // close and send out the message
 void OOCSI::sendMessage() {
-  outgoingMessage.concat('}');
-  outgoingMessage.concat('\n');
-  client.println(outgoingMessage);
+  client.print("sendraw ");
+  client.print(jsonMessageReceiver);
+  client.print(" ");
+  serializeJson(jsonMessage, client);
+  client.println();
 }
 
 // log the outgoing message
 void OOCSI::printSendMessage() {
-  println(outgoingMessage);
+  if(logging)
+    serializeJson(jsonMessage, Serial);
 }
 
 
@@ -580,10 +441,11 @@ String OOCSI::getClients() {
   client.println("clients");
   String message;
   //keep waiting for a message
-  while (!client.available()) {  yield();
+  while (!client.available()) {
+    yield();
     delay(20);
   }
-  while (client.available()) {  yield();
+  while (client.available()) {
     message = client.readStringUntil('\n');
   }
   return message;
@@ -597,16 +459,16 @@ String OOCSI::getChannels() {
   client.println("channels");
   String message;
   //keep waiting for a message
-  while (!client.available()) {  yield();
+  while (!client.available()) {
     delay(20);
   }
-  while (client.available()) {  yield();
+  while (client.available()) {
     message = client.readStringUntil('\n');
   }
   return message;
 }
 
-boolean OOCSI::containsClient(const char* clientName) {
+bool OOCSI::containsClient(const char* clientName) {
   //check for the client.
   String clientlist = getClients();
   if (clientlist.indexOf(clientName) == -1) {
@@ -618,50 +480,34 @@ boolean OOCSI::containsClient(const char* clientName) {
 }
 
 void OOCSI::print(const String &message) {
-  if(logging) {
+  if(logging)
     Serial.print(message);
-  }
 }
 
 void OOCSI::print(char message) {
-  if(logging) {
+  if(logging)
     Serial.print(message);
-  }
 }
 
 void OOCSI::println() {
-  if(logging) {
+  if(logging)
     Serial.println();
-  }
 }
 
 void OOCSI::println(const String &message) {
-  if(logging) {
-    Serial.print("\nOOCSI: ");
-    Serial.print(message);
-  }
+  if(logging)
+    Serial.println(message);
 }
 
 void OOCSI::println(char message) {
-  if(logging) {
-    Serial.print("\nOOCSI: ");
-    Serial.print(message);
-  }
+  if(logging)
+    Serial.println(message);
 }
 
 void OOCSI::setActivityLEDPin(int ledPin) {
   activityLEDPin = ledPin;
 }
 
-void OOCSI::setLogging(boolean log) {
+void OOCSI::setLogging(bool log) {
   logging = log;
 }
-
-/*
-  void OOCSI::removeSlashes(){
-  int slashloc = theMessage.indexOf((char) 92);
-  while(slashloc != -1)
-  theMessage.remove(slashloc);  //92 is a: \
-  slashloc = theMessage.indexOf((char) 92);
-  }
-*/

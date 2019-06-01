@@ -25,6 +25,7 @@ getFloat 	KEYWORD2
 getString	KEYWORD2
 getBoolArray 	KEYWORD2
 getIntArray 	KEYWORD2
+getLongArray 	KEYWORD2
 getFloatArray	KEYWORD2
 getStringArray KEYWORD2
 getSender	KEYWORD2
@@ -44,6 +45,7 @@ addFloat 	KEYWORD2
 addString 	KEYWORD2
 addBoolArray 	KEYWORD2
 addIntArray 	KEYWORD2
+addLongArray 	KEYWORD2
 addFloatArray	KEYWORD2
 addStringArray		KEYWORD2
 sendMessage 	KEYWORD2
