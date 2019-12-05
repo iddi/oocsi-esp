@@ -338,7 +338,8 @@ String OOCSI::keys() {
 
 // function for setting up a new message for sending over OOCSI
 OOCSI OOCSI::newMessage(const char* receiver) {
-  jsonMessage = StaticJsonDocument<MSG_SIZE>();
+  // jsonMessage = StaticJsonDocument<MSG_SIZE>();
+  jsonMessage.clear();
   jsonMessageReceiver = receiver;
   return *this;
 }
