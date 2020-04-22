@@ -26,6 +26,9 @@ Check the table above for compatilibity with different ESPs. Version v1.2.1 is m
 # How to install
 To install the library, download the library archive **oocsi.zip** from the latest [release](https://github.com/iddi/oocsi-esp/releases) and unpack **oocsi.zip** into the libraries folder of your Arduino IDE (usually here: Documents/Arduino/libraries/). After this, restart the Arduino IDE and check whether a new examples category "OOCSI" is shown. If yes, all fine, start coding. If not, check again that the library is in the right folder. Make sure that you have downloaded the oocsi.zip library archive and *not* the source archive of the release.
 
+**Important notice from version 1.4.0**
+The library "ArduinoJson" is *required* by the OOCSI library from Version 1.4.0. Follow the [step-by-step guide](https://arduinojson.org/v6/doc/installation/) to install it in your Arduino IDE.
+
 # How to use
 To use OOCSI for ESP, please check out the example code that is packaged with the library. Below, the different functions of the library will be explained divided into the following parts: connecting to a network, sending data to the network and receiving data from the network. We will use similar code as in the library examples.
 
