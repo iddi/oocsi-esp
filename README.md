@@ -61,14 +61,14 @@ After this command, data can be added to the message. Please note that the ESP l
 ### Adding data to a message
 A message is empty at first. While it is certainly possible to send an empty message (for instance, as a "heartbeat" or "ping" signal), adding data makes it more useful. A message in OOCSI consists of several pairs of each a key and a value. The *key* identifies and labels the data. With the key the recipient of the message can easily retrieve it. The *value* that is given with the key, can be of many types. In this library, only a few basic types are implemented, which should cover 95% of all cases: int, long, float, and string.
 
-	oocsi.addInt("int", 40)
-	oocsi.addLong("long", 5000000);
-	oocsi.addFloat("float", 50.6);
-	oocsi.addString("text", "value as string");
+	oocsi.addInt("counter", 40)
+	oocsi.addLong("timestamp", 5000000);
+	oocsi.addFloat("angle", 50.6);
+	oocsi.addString("message", "value as string");
 
 It is also possible to _chain_ the commands to add data:
 
-	oocsi.addInt("int", 40).addLong("long", (long) 51250220);
+	oocsi.addInt("counter", 40).addLong("timestamp", (long) 51250220);
 
 
 ### Sending the message
@@ -78,7 +78,7 @@ After the message is complete, we can send it out:
 
 Again, it is possible to chain all commands for sending a message:
 
-	oocsi.newMessage("testchannel").addInt("number", 6).sendMessage();
+	oocsi.newMessage("testchannel").addInt("counter", 6).sendMessage();
   
 To see what was actually sent out, you can use the printMessage command:
 
@@ -102,10 +102,10 @@ We can subscribe to as many channels as we want; if data is sent to these channe
 ### Getting data out
 There are similar functions to adding data, for getting out. Commonly, the data type is identified by the command, the first parameter provides the *key* and the last parameter provides a *default value* that is used in case the key could not be found in the message. In the examples below we use -200 as the default value (anything is possible actually).
 
-	int ivalue = oocsi.getInt("integer", -200);
-	float fvalue = oocsi.getFloat("float", -200.0);
-	long lvalue = (long) oocsi.getInt("long", -200);
-	string svalue = oocsi.getString("string", "-200");
+	int ivalue = oocsi.getInt("counter", -200);
+	float fvalue = oocsi.getFloat("angle", -200.0);
+	long lvalue = (long) oocsi.getInt("timestamp", -200);
+	string svalue = oocsi.getString("message", "-200");
 
 There is an exception for the *long* data type, where we use getInt and cast to long.
 
@@ -118,7 +118,7 @@ A message always contains meta-data, the sender handle, the recipient which is e
 
 Before using a key, we can also check whether the message contains data with the given key:
 
-	if(oocsi.has("integer")) {
+	if(oocsi.has("counter")) {
 		// get data out
 	}
 
