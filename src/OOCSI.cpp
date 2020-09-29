@@ -40,7 +40,7 @@ bool OOCSI::connect(const char* name, const char* hostServer, oocsiCallbackFunct
   OOCSIName = name;
   host = hostServer;
 
-  internalConnect();
+  return internalConnect();
 }
 
 // function for connecting first to WIFI then to OOCSI
@@ -60,9 +60,8 @@ bool OOCSI::connect(const char* name, const char* hostServer, const char* Wifiss
   ssid = Wifissid;
   password = Wifipassword;
   manageWifi = true;
-  processMessageData = callbackData;
 
-  return connect(name, hostServer, func);
+  return connect(name, hostServer, callback, callbackData);
 }
 
 // function for connecting wifi, setup and reconnection is handled automagically
@@ -203,10 +202,11 @@ bool OOCSI::internalConnect() {
       return false;
     }
   }
+  return false;
 }
 
 /**
- * @brief  Function which checks for incoming OOCSI messages and maintains the connection
+ * * @brief  Function which checks for incoming OOCSI messages and maintains the connection
  * to the OOCSI server
  * @note   Should be called periodically, please place this inside the main loop
  * @retval None
