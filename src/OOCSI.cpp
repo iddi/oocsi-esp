@@ -8,31 +8,60 @@
  **************************************************************************/
 
 #include "OOCSI.h"
+#include <Arduino.h>
+#include <ArduinoJson.h>
 
 // function for creating an OOCSI client
+/**
+ * @brief  Constructor for creating a new OOCSI client
+ * @note   Should only be called once
+ * @retval A new OOCSI client
+ */
 OOCSI::OOCSI() {
   activityLEDPin = -1;
   logging = true;
 }
 
-// function for connecting first to OOCSI
-bool OOCSI::connect(const char* name, const char* hostServer, void(*func)()) {
+/**
+ * @brief  Connects to an OOCSI server at hostSever
+ * @note   
+ * @param  name: The client name of the esp
+ * @param  hostServer: the address of the OOCSI server
+ * @param  callback: The callback, which notifies an OOCSI message
+ * @param  callbackData: Data that can be given to the OOCSI callback this
+ * is for advanced use only and is not required
+ * @retval returns true when connected successfully.
+ */
+bool OOCSI::connect(const char* name, const char* hostServer, oocsiCallbackFunction_t callback, void* callbackData = NULL) {
   receivedMessage = false;
-  processMessage = func;
+  processMessage = callback;
+  processMessageData = callbackData;
 
   OOCSIName = name;
   host = hostServer;
 
-  internalConnect();
+  return internalConnect();
 }
 
 // function for connecting first to WIFI then to OOCSI
-bool OOCSI::connect(const char* name, const char* hostServer, const char* Wifissid, const char* Wifipassword, void (*func)()) {
+/**
+ * @brief  Connects to an OOCSI server at hostSever and manages the wifi connection
+ * @note   
+ * @param  name:  The client name of the esp
+ * @param  hostServer: the address of the OOCSI server
+ * @param  Wifissid: The SSID or name of the wifi network.
+ * @param  Wifipassword: The password of the wifi network
+ * @param  callback: The callback, which notifies an OOCSI message
+ * @param  callbackData: Data that can be given to the OOCSI callback this
+ * is for advanced use only and is not required
+ * @retval returns true when connected successfully.
+ */
+bool OOCSI::connect(const char* name, const char* hostServer, const char* Wifissid, const char* Wifipassword, oocsiCallbackFunction_t callback, void* callbackData = NULL) {
   ssid = Wifissid;
   password = Wifipassword;
   manageWifi = true;
 
-  return connect(name, hostServer, func);
+  return connect(name, hostServer, callback, callbackData);
 }
 
 // function for connecting wifi, setup and reconnection is handled automagically
@@ -75,6 +104,11 @@ void OOCSI::connectWifi() {
   }
 }
 
+/**
+ * @brief  Disconnect from WiFi and OOCSI
+ * @note   
+ * @retval None
+ */
 void OOCSI::disconnect() {
     client.println(F("quit"));
     client.stop();
@@ -84,6 +118,12 @@ void OOCSI::disconnect() {
 }
 
 // function for subscribing to an OOCSI channel, function can be called multiple times
+/**
+ * @brief  Subscribes to an OOCSI channel
+ * @note   Function can be called multiple times to subscribe to multiple OOCSI channels
+ * @param  chan: The channel to subscribe to
+ * @retval None
+ */
 void OOCSI::subscribe(const char* chan) {
   String channel = "subscribe ";
   channel.concat(chan);
@@ -91,6 +131,12 @@ void OOCSI::subscribe(const char* chan) {
 }
 
 // function for unsubscribing from an OOCSI channel, function can be called multiple times
+/**
+ * @brief  Unsubscribe from an OOCSI channel
+ * @note   Function can be called multiple times to unsubscribe from multiple OOCSI channels
+ * @param  chan: The channel to unsubscribe from
+ * @retval None
+ */
 void OOCSI::unsubscribe(const char* chan) {
   String channel = "unsubscribe ";
   channel.concat(chan);
@@ -98,6 +144,11 @@ void OOCSI::unsubscribe(const char* chan) {
 }
 
 // function to internally connect to OOCSI (needs all variables set up)
+/**
+ * @brief  Manages connection once configuration is done
+ * @note   Private function 
+ * @retval returns true if a successful connection is established
+ */
 bool OOCSI::internalConnect() {
   if (manageWifi) {
     connectWifi();
@@ -151,9 +202,15 @@ bool OOCSI::internalConnect() {
       return false;
     }
   }
+  return false;
 }
 
-// function which checks for new messages or pings periodically
+/**
+ * * @brief  Function which checks for incoming OOCSI messages and maintains the connection
+ * to the OOCSI server
+ * @note   Should be called periodically, please place this inside the main loop
+ * @retval None
+ */
 void OOCSI::check() {
   //check if we are connected to the WIFI and the OOCSI server
   if (WiFi.status() != WL_CONNECTED || !client.connected()) {
@@ -180,7 +237,7 @@ void OOCSI::check() {
         receivedMessage = false;
       }
       receivedMessage = true;
-      processMessage();
+      processMessage(processMessageData);
 
       if(activityLEDPin > -1) {
         delay(20);
@@ -203,7 +260,11 @@ void OOCSI::check() {
   }
 }
 
-// function which prints the entire incoming message
+/**
+ * @brief  Prints the entire OOCSI message in memory
+ * @note   
+ * @retval None
+ */
 void OOCSI::printMessage() {
   serializeJson(jsonDocument, Serial);
 }
