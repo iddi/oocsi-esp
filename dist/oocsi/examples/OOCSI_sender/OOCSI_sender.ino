@@ -33,7 +33,7 @@ void setup() {
 
   // setting up OOCSI. processOOCSI is the name of the function to call when receiving messages, can be a random function name
   // connect wifi and OOCSI to the server
-  oocsi.connect(OOCSIName, hostserver, ssid, password, processOOCSI);
+  oocsi.connect(OOCSIName, hostserver, ssid, password);
 }
 
 // put your main code here, to run repeatedly:
@@ -64,8 +64,4 @@ void loop() {
   // needs to be checked in order for OOCSI to process incoming data.
   oocsi.check();
   delay(500);
-}
-
-void processOOCSI() {
-  // don't do anything; we are sending only
 }

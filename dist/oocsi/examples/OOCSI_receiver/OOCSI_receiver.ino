@@ -48,6 +48,7 @@ void setup() {
 
 void loop() {
   // put your main code here, to run repeatedly:
+  // ...
 
   // let OOCSI check to process incoming data
   oocsi.check();
@@ -58,8 +59,8 @@ void processOOCSI() {
 
   // printing the output of different variables of the message; standard call is get<data type>(key, standard value)
   // the standard value -200 will be returned when the key is not included in the OOCSI message
-  Serial.print("greeting: " );
-  Serial.print(oocsi.getString("greeting", "-200"));
+  Serial.print("greeting: ");
+  Serial.print(oocsi.getString("greeting", ""));
   Serial.print("\t count: ");
   Serial.print(oocsi.getInt("count", -200));
   Serial.print("\tfloat_point: ");
@@ -67,7 +68,7 @@ void processOOCSI() {
   Serial.print("\t time: ");
   Serial.print(oocsi.getInt("time", -200));
 
-  // printing out an array requires you to pass the maximum length of the array 
+  // printing out an array requires you to pass the maximum length of the array
   // and an array to be used to display the results in
   // int array
   int standardarray[] = {1, 1, 1};
