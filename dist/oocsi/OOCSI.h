@@ -27,12 +27,18 @@
 #include <ArduinoJson.h>
 
 class OOCSI{
+  typedef void(*oocsiCallbackFunction_t)(void*);
+
   public:
 
     // setup, connection, subscription
     OOCSI();
+    bool connect(const char* Name, const char* hostServer);
     bool connect(const char* Name, const char* hostServer, void (*func)());
+    bool connect(const char* Name, const char* hostServer, const char* Wifissid, const char* wifipassword);
     bool connect(const char* Name, const char* hostServer, const char* Wifissid, const char* wifipassword, void (*func)());
+    bool connect(const char* Name, const char* hostServer, oocsiCallbackFunction_t callback, void* callbackData);
+    bool connect(const char* Name, const char* hostServer, const char* Wifissid, const char* wifipassword, oocsiCallbackFunction_t callback, void* callbackData);
     void disconnect();
     void check();
     void subscribe(const char* chan);
@@ -98,9 +104,10 @@ class OOCSI{
     StaticJsonDocument<MSG_SIZE> jsonMessage;
     String jsonMessageReceiver;
     bool receivedMessage;
-    bool firstval;
     int activityLEDPin;
     void (*processMessage)();
+    oocsiCallbackFunction_t processMessageDataHandle;
+    void* processMessageData;
 
     // logging
     bool logging;

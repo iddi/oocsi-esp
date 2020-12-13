@@ -9,30 +9,116 @@
 
 #include "OOCSI.h"
 
-// function for creating an OOCSI client
+/**
+ * @brief  Constructor for creating a new OOCSI client
+ * @note   Should only be called once
+ * @retval A new OOCSI client
+ */
 OOCSI::OOCSI() {
   activityLEDPin = -1;
   logging = true;
 }
 
-// function for connecting first to OOCSI
-bool OOCSI::connect(const char* name, const char* hostServer, void(*func)()) {
+/**
+ * @brief  Connects to an OOCSI server at hostSever
+ * @note   
+ * @param  name: The client name of the esp
+ * @param  hostServer: the address of the OOCSI server
+ * @param  callback: The callback, which notifies an OOCSI message
+ * @retval returns true when connected successfully.
+ */
+bool OOCSI::connect(const char* name, const char* hostServer) {
+  return connect(name, hostServer, NULL);
+}
+
+/**
+ * @brief  Connects to an OOCSI server at hostServer
+ * @note   
+ * @param  name: The client name of the esp
+ * @param  hostServer: the address of the OOCSI server
+ * @param  callback: The callback, which notifies an OOCSI message
+ * @retval returns true when connected successfully.
+ */
+bool OOCSI::connect(const char* name, const char* hostServer, void (*func)()) {
   receivedMessage = false;
   processMessage = func;
 
   OOCSIName = name;
   host = hostServer;
 
-  internalConnect();
+  return internalConnect();
 }
 
-// function for connecting first to WIFI then to OOCSI
+/**
+ * @brief  Connects to an OOCSI server at hostServer and manages the wifi connection
+ * @note   
+ * @param  name:  The client name of the esp
+ * @param  hostServer: the address of the OOCSI server
+ * @param  Wifissid: The SSID or name of the wifi network.
+ * @param  Wifipassword: The password of the wifi network
+ * @retval returns true when connected successfully.
+ */
+bool OOCSI::connect(const char* name, const char* hostServer, const char* Wifissid, const char* Wifipassword) {
+  return connect(name, hostServer, Wifissid, Wifipassword, NULL);
+}
+
+/**
+ * @brief  Connects to an OOCSI server at hostServer and manages the wifi connection
+ * @note   
+ * @param  name:  The client name of the esp
+ * @param  hostServer: the address of the OOCSI server
+ * @param  Wifissid: The SSID or name of the wifi network.
+ * @param  Wifipassword: The password of the wifi network
+ * @param  callback: The callback, which notifies an OOCSI message
+ * @retval returns true when connected successfully.
+ */
 bool OOCSI::connect(const char* name, const char* hostServer, const char* Wifissid, const char* Wifipassword, void (*func)()) {
   ssid = Wifissid;
   password = Wifipassword;
   manageWifi = true;
 
   return connect(name, hostServer, func);
+}
+
+/**
+ * @brief  Connects to an OOCSI server at hostServer
+ * @note   
+ * @param  name: The client name of the esp
+ * @param  hostServer: the address of the OOCSI server
+ * @param  callback: The callback, which notifies an OOCSI message
+ * @param  callbackData: Data that can be given to the OOCSI callback this
+ * is for advanced use only and is not required
+ * @retval returns true when connected successfully.
+ */
+bool OOCSI::connect(const char* name, const char* hostServer, oocsiCallbackFunction_t callback, void* callbackData) {
+  receivedMessage = false;
+  processMessageDataHandle = callback;
+  processMessageData = callbackData;
+
+  OOCSIName = name;
+  host = hostServer;
+
+  return internalConnect();
+}
+
+/**
+ * @brief  Connects to an OOCSI server at hostServer and manages the wifi connection
+ * @note   
+ * @param  name:  The client name of the esp
+ * @param  hostServer: the address of the OOCSI server
+ * @param  Wifissid: The SSID or name of the wifi network.
+ * @param  Wifipassword: The password of the wifi network
+ * @param  callback: The callback, which notifies an OOCSI message
+ * @param  callbackData: Data that can be given to the OOCSI callback this
+ * is for advanced use only and is not required
+ * @retval returns true when connected successfully.
+ */
+bool OOCSI::connect(const char* name, const char* hostServer, const char* Wifissid, const char* Wifipassword, oocsiCallbackFunction_t callback, void* callbackData) {
+  ssid = Wifissid;
+  password = Wifipassword;
+  manageWifi = true;
+
+  return connect(name, hostServer, callback, callbackData);
 }
 
 // function for connecting wifi, setup and reconnection is handled automagically
@@ -75,6 +161,11 @@ void OOCSI::connectWifi() {
   }
 }
 
+/**
+ * @brief  Disconnect from WiFi and OOCSI
+ * @note   
+ * @retval None
+ */
 void OOCSI::disconnect() {
     client.println(F("quit"));
     client.stop();
@@ -83,21 +174,35 @@ void OOCSI::disconnect() {
     }
 }
 
-// function for subscribing to an OOCSI channel, function can be called multiple times
+/**
+ * @brief  Subscribes to an OOCSI channel
+ * @note   Function can be called multiple times to subscribe to multiple OOCSI channels
+ * @param  chan: The channel to subscribe to
+ * @retval None
+ */
 void OOCSI::subscribe(const char* chan) {
   String channel = "subscribe ";
   channel.concat(chan);
   client.println(channel);
 }
 
-// function for unsubscribing from an OOCSI channel, function can be called multiple times
+/**
+ * @brief  Unsubscribe from an OOCSI channel
+ * @note   Function can be called multiple times to unsubscribe from multiple OOCSI channels
+ * @param  chan: The channel to unsubscribe from
+ * @retval None
+ */
 void OOCSI::unsubscribe(const char* chan) {
   String channel = "unsubscribe ";
   channel.concat(chan);
   client.println(channel);
 }
 
-// function to internally connect to OOCSI (needs all variables set up)
+/**
+ * @brief  Manages connection once configuration is done
+ * @note   Private function to internally connect to OOCSI (needs all variables set up)
+ * @retval returns true if a successful connection is established
+ */
 bool OOCSI::internalConnect() {
   if (manageWifi) {
     connectWifi();
@@ -110,7 +215,7 @@ bool OOCSI::internalConnect() {
   }
 
   if (!client.connect(host, port)) {
-    print('_');
+    print('.');
 
     //then it failed. so do it again
     if (connectionAttemptCounter++ < 100) {
@@ -122,15 +227,22 @@ bool OOCSI::internalConnect() {
       return false;
     }
   } else {
-    print("[x] ");
+    // print("[x] ");
     // continue with client-server handshake
-    client.print(OOCSIName);
+    for(int i = 0; i < strlen(OOCSIName); i++) {
+      if(OOCSIName[i] == '#') {
+        client.print(random(0, 10));
+      } else {
+        client.print(OOCSIName[i]);
+      }
+    }
+    
     client.println(F("(JSON)"));
 
     // wait for a response from the server (max. 20 sec)
     int waitingResponseCounter = 0;
     while (!client.available() && waitingResponseCounter++ < 40) {
-      print('_');
+      print('.');
       delay(250);
     }
 
@@ -144,16 +256,20 @@ bool OOCSI::internalConnect() {
         delay(2000);
         return internalConnect();
       }
-
-      println();
       return true;
     } else {
       return false;
     }
   }
+  return false;
 }
 
-// function which checks for new messages or pings periodically
+/**
+ * @brief  Function which checks for incoming OOCSI messages and maintains the connection
+ * to the OOCSI server
+ * @note   Should be called periodically, please place this inside the main loop
+ * @retval None
+ */
 void OOCSI::check() {
   //check if we are connected to the WIFI and the OOCSI server
   if (WiFi.status() != WL_CONNECTED || !client.connected()) {
@@ -180,7 +296,12 @@ void OOCSI::check() {
         receivedMessage = false;
       }
       receivedMessage = true;
-      processMessage();
+      if(processMessage != NULL) {
+        processMessage();
+      } else if (processMessageDataHandle != NULL) {
+        processMessageDataHandle(processMessageData);  
+      }
+      
 
       if(activityLEDPin > -1) {
         delay(20);
@@ -203,9 +324,14 @@ void OOCSI::check() {
   }
 }
 
-// function which prints the entire incoming message
+/**
+ * @brief  Prints the entire OOCSI message in memory
+ * @note   
+ * @retval None
+ */
 void OOCSI::printMessage() {
   serializeJson(jsonDocument, Serial);
+  println();
 }
 
 bool OOCSI::getBool(const char* key, bool standard) {
