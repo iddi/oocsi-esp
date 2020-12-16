@@ -1,33 +1,18 @@
 # OOCSI for ESP
 
-The OOCSI mission is to create a simple systems-interaction fabric for use by designers.
+The OOCSI mission is to create a design middleware for use by designers and creative technologist. OOCSI allows to prototype with connectivity.
 
 There are two basic components that form an OOCSI network: the client and the server. While the server can be started from the command line (see here), the client interface need to be embedded in other code and allows this code to access the OOCSI network, to send and receive data in a simple way.
 
-THe OOCSI for ESP library is made for the Arduino IDE and it allows to directly use most of the OOCSI functionality in small-scale systems. We tested this library with the ESP32 and ESP8266.
-
-# Compatibility
-| Module | Arduino board name | ESP variant | v1.2.1 | v1.3.1 |
-| ---- |:----:|:----:|:----:| :----: |
-| Sparkfun ESP32 Thing | ESP32 DEV Module | 32 | OK | OK | 
-| Sparkfun ESP32 Thing | Sparkfun ESP32 Thing | 32 | OK | OK | 
-| Sparkfun ESP8266 Thing | Sparkfun ESP8266 Thing | 8266 | OK | UR | 
-| WeMos D1 mini | LOLIN(WEMOS) D1 R2 & mini | 8266 | OK | UR  |
-| WeMos D1 v3.0.0 | LOLIN(WEMOS) D1 R2 & mini | 8266 | OK | UR |
-| WeMos D1 v3.0.0 | LOLIN(WEMOS) D1 mini Lite | 8266 | OK | UR |
-| NodeMCU (AI-Thinker) | NodeMCU 1.0 | 8266 | OK | OK |
-| NodeMCU (AI-Thinker) | NodeMCU 0.9 | 8266 |  -  |  -  |
-| Adafruit Feather HUZZAH | Adafruit Feather HUZZAH ESP8266 | 8266 | UR | - |
-
-*OK = sending / receiving all fine; UR = unstable run, might crash*
-
-Check the table above for compatilibity with different ESPs. Version v1.2.1 is more basic and can only deal with first level event data. v1.3.1 can parse JSON properly, but needs more memory, making it less stable on some low-memory modules. Both versions are available from https://github.com/iddi/oocsi-esp/releases. If you are not sure which module to get, go for the ESP32!
+The OOCSI for ESP library is made for the Arduino IDE and it allows to directly use most of the OOCSI functionality in small-scale systems. We tested this library with the ESP32 and ESP8266.
 
 # How to install
-To install the library, download the library archive **oocsi.zip** from the latest [release](https://github.com/iddi/oocsi-esp/releases) and unpack **oocsi.zip** into the libraries folder of your Arduino IDE (usually here: Documents/Arduino/libraries/). After this, restart the Arduino IDE and check whether a new examples category "OOCSI" is shown. If yes, all fine, start coding. If not, check again that the library is in the right folder. Make sure that you have downloaded the oocsi.zip library archive and *not* the source archive of the release.
+To install the library, download the library archive **oocsi.zip** from the latest [release](https://github.com/iddi/oocsi-esp/releases) and unpack **oocsi.zip** into the libraries folder of your Arduino IDE (usually here: Documents/Arduino/libraries/). After this, restart the Arduino IDE and check whether a new examples category "OOCSI" is shown. If yes, all fine, start coding (jump to 'How to use'). 
+
+In case this does not work yet, check again that the library is in the right folder. Make sure that you have downloaded the `oocsi.zip` library archive and *not* the source archive of the release. If the library shows up in a subfolder 'INCOMPATIBLE', you need to first select a compatible board in the Tools>Board menu of the Arduino IDE. Select either an ESP32 or ESP8266 board, install the boards via the 'Boards Manager' if you cannot find any ESP32 or ESP8266 boards listed.
 
 **Important notice from version 1.4.0**
-The library "ArduinoJson" is *required* by the OOCSI library from Version 1.4.0. Follow the [step-by-step guide](https://arduinojson.org/v6/doc/installation/) to install it in your Arduino IDE.
+The library "ArduinoJson" is *required* by the OOCSI library from OOCSI for ESP version 1.4.0. Follow the [step-by-step guide](https://arduinojson.org/v6/doc/installation/) to install it in your Arduino IDE. Please ensure that you install version 6 or higher of "ArduinoJson".
 
 # How to use
 To use OOCSI for ESP, please check out the example code that is packaged with the library. Below, the different functions of the library will be explained divided into the following parts: connecting to a network, sending data to the network and receiving data from the network. We will use similar code as in the library examples.
@@ -37,7 +22,7 @@ To connect to an OOCSI network, that is, a running [OOCSI server](https://github
 
 	OOCSI oocsi = OOCSI();
 
-This will not yet connect to the network. To connect, you have to use the *connect* function which takes five parameters: the unique handle of the client in the OOCSI network (this is important to identify itself and receive direct messages), the address of the OOCSI server, the name and password of the Wifi network to use and a reference to a function that will be called to process incoming messages.
+This will not yet connect to the network. To connect, you have to use the *connect* function which takes multiple parameters: the unique handle of the client in the OOCSI network (this is important to identify itself and receive direct messages), the address of the OOCSI server, the name and password of the Wifi network to use and a reference to a function that will be called to process incoming messages.
 
 	oocsi.connect(OOCSIName, hostserver, ssid, password, processOOCSI);
 	...
@@ -154,14 +139,16 @@ To switch logging on again, use:
 
 	oocsi.setLogging(true);
 
-
 ### Activity LED
 The library can use an LED to signal activity. Use this by switching the respective pin to OUTPUT and tell the library about which pin to use: 
 
 	pinMode(5, OUTPUT);
 	oocsi.setActivityLEDPin(5);
+
   
-### More --> Tbd.
+## Examples
+We have included several examples in the OOCSI for ESP library. The most commonly used examples are listed directly in the OOCSI examples category. You will also find a 'Data Foundry' subcategory which contains examples that show how to use the [Data Foundry](https://data.id.tue.nl) with ESP32 and ESP8266 boards. The 'Extras' subcategory contains examples that explain how to work with random client names, how to retrieve time information from OOCSI, how to work with multiple WiFis or even a freely configurable WiFi manager.
+
 
 ## Credits
 Initial development: Jort Band
@@ -169,3 +156,24 @@ Stable version and maintenance: Mathias Funk
 Testing and support: Henk Apeldoorn, Geert van den Boomen, Dirk van de Mortel
 
 Find the OOCSI mothership project at https://github.com/iddi/oocsi
+
+---
+
+# Compatibility for versions < 1.4.x
+| Module | Arduino board name | ESP variant | v1.2.1 | v1.3.1 |
+| ---- |:----:|:----:|:----:| :----: |
+| Sparkfun ESP32 Thing | ESP32 DEV Module | 32 | OK | OK | 
+| Sparkfun ESP32 Thing | Sparkfun ESP32 Thing | 32 | OK | OK | 
+| Sparkfun ESP8266 Thing | Sparkfun ESP8266 Thing | 8266 | OK | UR | 
+| WeMos D1 mini | LOLIN(WEMOS) D1 R2 & mini | 8266 | OK | UR  |
+| WeMos D1 v3.0.0 | LOLIN(WEMOS) D1 R2 & mini | 8266 | OK | UR |
+| WeMos D1 v3.0.0 | LOLIN(WEMOS) D1 mini Lite | 8266 | OK | UR |
+| NodeMCU (AI-Thinker) | NodeMCU 1.0 | 8266 | OK | OK |
+| NodeMCU (AI-Thinker) | NodeMCU 0.9 | 8266 |  -  |  -  |
+| Adafruit Feather HUZZAH | Adafruit Feather HUZZAH ESP8266 | 8266 | UR | - |
+
+*OK = sending / receiving all fine; UR = unstable run, might crash*
+
+Check the table above for compatilibity with different ESPs. Version v1.2.1 is more basic and can only deal with first level event data. v1.3.1 can parse JSON properly, but needs more memory, making it less stable on some low-memory modules. Both versions are available from https://github.com/iddi/oocsi-esp/releases. If you are not sure which module to get, go for the ESP32!
+
+

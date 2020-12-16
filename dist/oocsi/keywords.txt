@@ -6,54 +6,66 @@
 # Datatypes (KEYWORD1)
 #######################################
 
-OOCSI	KEYWORD1
+OOCSI				KEYWORD1
 
 
 #######################################
 # Methods and Functions (KEYWORD2)
 #######################################
-connect		KEYWORD2
-check		KEYWORD2
-subscribe	KEYWORD2
-unsubscribe 	KEYWORD2
+connect				KEYWORD2
+disconnect			KEYWORD2
+check				KEYWORD2
+subscribe			KEYWORD2
+unsubscribe 		KEYWORD2
 
-
-getBool		KEYWORD2
-getInt		KEYWORD2
-getLong		KEYWORD2
-getFloat 	KEYWORD2
-getString	KEYWORD2
-getBoolArray 	KEYWORD2
-getIntArray 	KEYWORD2
-getLongArray 	KEYWORD2
-getFloatArray	KEYWORD2
-getStringArray KEYWORD2
-getSender	KEYWORD2
-getRecipient	KEYWORD2
-getTimeStamp	KEYWORD2
-has		KEYWORD2
-keys		KEYWORD2
+getSender			KEYWORD2
+getRecipient		KEYWORD2
+getBool				KEYWORD2
+getInt				KEYWORD2
+getLong				KEYWORD2
+getFloat 			KEYWORD2
+getString			KEYWORD2
+getBoolArray 		KEYWORD2
+getIntArray 		KEYWORD2
+getLongArray 		KEYWORD2
+getFloatArray		KEYWORD2
+getStringArray 		KEYWORD2
+getTimeStamp		KEYWORD2
+has					KEYWORD2
+keys				KEYWORD2
 printMessage		KEYWORD2
-setActivityLEDPin		KEYWORD2
-setLogging		 KEYWORD2
+setActivityLEDPin	KEYWORD2
+setLogging		 	KEYWORD2
 
-newMessage 	KEYWORD2
-addBool		KEYWORD2
-addInt		KEYWORD2
-addLong		KEYWORD2
-addFloat 	KEYWORD2
-addString 	KEYWORD2
-addBoolArray 	KEYWORD2
-addIntArray 	KEYWORD2
-addLongArray 	KEYWORD2
-addFloatArray	KEYWORD2
+newMessage 			KEYWORD2
+addBool				KEYWORD2
+addInt				KEYWORD2
+addLong				KEYWORD2
+addFloat 			KEYWORD2
+addString 			KEYWORD2
+addBoolArray 		KEYWORD2
+addIntArray 		KEYWORD2
+addLongArray 		KEYWORD2
+addFloatArray		KEYWORD2
 addStringArray		KEYWORD2
-sendMessage 	KEYWORD2
+sendMessage 		KEYWORD2
 printSendMessage	KEYWORD2
 
-getClients	KEYWORD2
-getChannels	KEYWORD2
-containsClient	KEYWORD2
+device				KEYWORD2
+activity			KEYWORD2
+id					KEYWORD2
+token				KEYWORD2
+clear				KEYWORD2
+
+logItem				KEYWORD2
+addItem				KEYWORD2
+updateItem			KEYWORD2
+deleteItem			KEYWORD2
+getItem				KEYWORD2
+
+getClients			KEYWORD2
+getChannels			KEYWORD2
+containsClient		KEYWORD2
 
 
 #######################################
