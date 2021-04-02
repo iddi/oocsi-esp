@@ -77,13 +77,35 @@ bool DFDataset::logItem() {
   activity_id = activity_id != NULL ? activity_id : "";
   device_id = device_id != NULL ? device_id : "";
 
+  // do transmission
+#ifdef ARDUINO_SAMD_NANO_33_IOT
+  // compile address
+  snprintf_P(address, sizeof(address), PSTR("/datasets/ts/log/%i/%s"), dataset_id, activity_id);
+
+  HttpClient http = HttpClient(wifi, host, 80);  
+  http.beginRequest();
+  http.post(address);
+  http.sendHeader("Content-Type", F("application/json"));
+  http.sendHeader("api_token", api_token);
+  http.sendHeader("source_id", device_id);
+  http.sendHeader("device_id", device_id);
+  http.beginBody();
+  http.print(postMessage);
+  http.endRequest();
+  
+  int httpCode = http.responseStatusCode();
+  jsonMessage.clear();
+
+  //http.end();
+
+  return httpCode == 200;
+#else
   // compile address
   snprintf_P(address, sizeof(address), PSTR("http://%s/datasets/ts/log/%i/%s"), host, dataset_id, activity_id);
 
-  // do transmission
   HTTPClient http;
   http.begin(address/*, root_ca_df*/);
-  http.addHeader("Content-Type", "application/json");
+  http.addHeader("Content-Type", F("application/json"));
   http.addHeader("api_token", api_token);
   http.addHeader("source_id", device_id);
   http.addHeader("device_id", device_id);
@@ -94,6 +116,7 @@ bool DFDataset::logItem() {
   http.end();
 
   return httpCode == HTTP_CODE_OK;
+#endif
 }
 
 bool DFDataset::addItem() {
@@ -107,16 +130,38 @@ bool DFDataset::addItem() {
   String postMessage = String();
   serializeJson(jsonMessage, postMessage);
 
-  // compile address
-  snprintf_P(address, sizeof(address), PSTR("http://%s/datasets/entity/%i/item/"), host, dataset_id);
-
   // set missing data
   resource_token = resource_token != NULL ? resource_token : "";
 
   // do transmission
+#ifdef ARDUINO_SAMD_NANO_33_IOT
+  // compile address
+  snprintf_P(address, sizeof(address), PSTR("/datasets/entity/%i/item/"), dataset_id);
+
+  HttpClient http = HttpClient(wifi, host, 80);  
+  http.beginRequest();
+  http.post(address);
+  http.sendHeader("Content-Type", F("application/json"));
+  http.sendHeader("resource_id", resource_id);
+  http.sendHeader("token", resource_token);
+  http.sendHeader("api_token", api_token);
+  http.beginBody();
+  http.print(postMessage);
+  http.endRequest();
+  
+  int httpCode = http.responseStatusCode();
+  jsonMessage.clear();
+
+  //http.end();
+
+  return httpCode == 200;
+#else
+  // compile address
+  snprintf_P(address, sizeof(address), PSTR("http://%s/datasets/entity/%i/item/"), host, dataset_id);
+
   HTTPClient http;
   http.begin(address/*, root_ca_df*/);
-  http.addHeader("Content-Type", "application/json");
+  http.addHeader("Content-Type", F("application/json"));
   http.addHeader("resource_id", resource_id);
   http.addHeader("token", resource_token);
   http.addHeader("api_token", api_token);
@@ -127,6 +172,7 @@ bool DFDataset::addItem() {
   http.end();
 
   return httpCode == HTTP_CODE_OK;
+#endif
 }
 
 bool DFDataset::updateItem() {
@@ -140,13 +186,35 @@ bool DFDataset::updateItem() {
   String postMessage = String();
   serializeJson(jsonMessage, postMessage);
 
-  // compile address
-  snprintf_P(address, sizeof(address), PSTR("http://%s/datasets/entity/%i/item/"), host, dataset_id);
-
   // set missing data
   resource_token = resource_token != NULL ? resource_token : "";
 
   // do transmission
+#ifdef ARDUINO_SAMD_NANO_33_IOT
+  // compile address
+  snprintf_P(address, sizeof(address), PSTR("/datasets/entity/%i/item/"), dataset_id);
+
+  HttpClient http = HttpClient(wifi, host, 80);  
+  http.beginRequest();
+  http.put(address);
+  http.sendHeader("Content-Type", F("application/json"));
+  http.sendHeader("resource_id", resource_id);
+  http.sendHeader("token", resource_token);
+  http.sendHeader("api_token", api_token);
+  http.beginBody();
+  http.print(postMessage);
+  http.endRequest();
+  
+  int httpCode = http.responseStatusCode();
+  jsonMessage.clear();
+
+  //http.end();
+
+  return httpCode == 200;
+#else
+  // compile address
+  snprintf_P(address, sizeof(address), PSTR("http://%s/datasets/entity/%i/item/"), host, dataset_id);
+
   HTTPClient http;
   http.begin(address/*, root_ca_df*/);
   http.addHeader("Content-Type", "application/json");
@@ -160,6 +228,7 @@ bool DFDataset::updateItem() {
   http.end();
 
   return httpCode == HTTP_CODE_OK;
+#endif
 }
 
 bool DFDataset::deleteItem() {
@@ -169,16 +238,38 @@ bool DFDataset::deleteItem() {
     return false;
   }
 
-  // compile address
-  snprintf_P(address, sizeof(address), PSTR("http://%s/datasets/entity/%i/item/"), host, dataset_id);
-  
   // set missing data
   resource_token = resource_token != NULL ? resource_token : "";
 
   // do transmission
+#ifdef ARDUINO_SAMD_NANO_33_IOT
+  // compile address
+  snprintf_P(address, sizeof(address), PSTR("/datasets/entity/%i/item/"), dataset_id);
+
+  HttpClient http = HttpClient(wifi, host, 80);  
+  http.beginRequest();
+  http.del(address);
+  http.sendHeader("Content-Type", F("application/json"));
+  http.sendHeader("resource_id", resource_id);
+  http.sendHeader("token", resource_token);
+  http.sendHeader("api_token", api_token);
+  http.beginBody();
+  http.print("");
+  http.endRequest();
+  
+  int httpCode = http.responseStatusCode();
+  jsonMessage.clear();
+
+  //http.end();
+
+  return httpCode == 200;
+#else
+  // compile address
+  snprintf_P(address, sizeof(address), PSTR("http://%s/datasets/entity/%i/item/"), host, dataset_id);
+  
   HTTPClient http;
   http.begin(address/*, root_ca_df*/);
-  http.addHeader("Content-Type", "application/json");
+  http.addHeader("Content-Type", F("application/json"));
   http.addHeader("resource_id", resource_id);
   http.addHeader("token", resource_token);
   http.addHeader("api_token", api_token);
@@ -191,6 +282,7 @@ bool DFDataset::deleteItem() {
   http.end();
 
   return httpCode == HTTP_CODE_OK;
+#endif
 }
 
 bool DFDataset::getItem() {
@@ -199,16 +291,47 @@ bool DFDataset::getItem() {
     return false;
   }
 
-  // compile address
-  snprintf_P(address, sizeof(address), PSTR("http://%s/datasets/entity/%i/item/"), host, dataset_id);
-
   // set missing data
   resource_token = resource_token != NULL ? resource_token : "";
 
   // do transmission
+#ifdef ARDUINO_SAMD_NANO_33_IOT
+  // compile address
+  snprintf_P(address, sizeof(address), PSTR("/datasets/entity/%i/item/"), dataset_id);
+
+  HttpClient http = HttpClient(wifi, host, 80);  
+  http.beginRequest();
+  http.get(address);
+  http.sendHeader("Content-Type", F("application/json"));
+  http.sendHeader("resource_id", resource_id);
+  http.sendHeader("token", resource_token);
+  http.sendHeader("api_token", api_token);
+  http.beginBody();
+  http.print("");
+  http.endRequest();
+  
+  int httpCode = http.responseStatusCode();
+  String jsonResponse = http.responseBody();
+
+  //http.end();
+  if(jsonResponse.length() > 0) {
+    DeserializationError error = deserializeJson(jsonDocument, jsonResponse.c_str());
+    if (error) {
+      print(F("Message parsing failed: "));
+      println(error.c_str());
+      return false;
+    }
+    return true;
+  } else {
+    return false;
+  }
+#else
+  // compile address
+  snprintf_P(address, sizeof(address), PSTR("http://%s/datasets/entity/%i/item/"), host, dataset_id);
+
   HTTPClient http;
   http.begin(address/*, root_ca_df*/);
-  http.addHeader("Content-Type", "application/json");
+  http.addHeader("Content-Type", F("application/json"));
   http.addHeader("resource_id", resource_id);
   http.addHeader("token", resource_token);
   http.addHeader("api_token", api_token);
@@ -231,6 +354,7 @@ bool DFDataset::getItem() {
   } else {
     return false;
   }
+#endif
 }
 
 bool DFDataset::getBool(const char* key, bool standard) {

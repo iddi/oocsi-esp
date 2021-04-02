@@ -1,5 +1,5 @@
 /***************************************************************************
- * The DataFoundry library for the ESP32 and ESP 8266 to store and retrieve
+ * The DataFoundry library for the ESP32 and ESP8266 to store and retrieve
  * data from ESPs on the Data Foundry platform.
  *
  * Developed by Mathias Funk
@@ -11,16 +11,25 @@
 #ifdef ESP32
     #include <WiFi.h>
     #include <HTTPClient.h>
-	#ifndef MSG_SIZE
-	    #define MSG_SIZE 2048
-	#endif
-#else
+    #ifndef MSG_SIZE
+        #define MSG_SIZE 2048
+    #endif
+#endif
+#ifdef ESP8266
     #include <ESP8266WiFi.h>
     #include <ESP8266HTTPClient.h>
-	#ifndef MSG_SIZE
-	    #define MSG_SIZE 1024
-	#endif
+    #ifndef MSG_SIZE
+        #define MSG_SIZE 1024
+    #endif
 #endif
+#ifdef ARDUINO_SAMD_NANO_33_IOT
+    #include <WiFiNINA.h>
+    #include <ArduinoHttpClient.h>
+    #ifndef MSG_SIZE
+        #define MSG_SIZE 1024
+    #endif
+#endif
+
 #ifndef LED_BUILTIN
     #define LED_BUILTIN -1
 #endif
@@ -80,6 +89,10 @@ class DFDataset {
     const char* resource_id;
     const char* resource_token;
     int dataset_id = 0;
+
+#ifdef ARDUINO_SAMD_NANO_33_IOT
+    WiFiClient wifi;
+#endif
 
     // data
     StaticJsonDocument<MSG_SIZE> jsonDocument;

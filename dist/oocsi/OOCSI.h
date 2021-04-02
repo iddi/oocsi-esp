@@ -15,12 +15,21 @@
     #ifndef MSG_SIZE
         #define MSG_SIZE 2048
     #endif
-#else
+#endif
+#ifdef ESP8266
     #include <ESP8266WiFi.h>
     #ifndef MSG_SIZE
         #define MSG_SIZE 1024
     #endif
 #endif
+#ifdef ARDUINO_SAMD_NANO_33_IOT
+    #include <WiFiNINA.h>
+    #ifndef MSG_SIZE
+        #define MSG_SIZE 1024
+    #endif
+#endif
+
+
 #ifndef LED_BUILTIN
     #define LED_BUILTIN -1
 #endif
