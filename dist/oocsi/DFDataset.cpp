@@ -1,6 +1,7 @@
 /***************************************************************************
- * The DataFoundry library for the ESP32 and ESP 8266 to store and retrieve
- * data from ESPs on the Data Foundry platform.
+ * The DataFoundry library for the ESP32, ESP8266, and Arduino Nano 33 IoT 
+ * to store and retrieve data from ESPs and Arduino Nano 33 IoT on the Data 
+ * Foundry platform.
  *
  * Developed by Mathias Funk
  **************************************************************************/
@@ -86,6 +87,7 @@ bool DFDataset::logItem() {
   http.beginRequest();
   http.post(address);
   http.sendHeader("Content-Type", F("application/json"));
+  http.sendHeader("Content-Length", postMessage.length());
   http.sendHeader("api_token", api_token);
   http.sendHeader("source_id", device_id);
   http.sendHeader("device_id", device_id);
@@ -142,6 +144,7 @@ bool DFDataset::addItem() {
   http.beginRequest();
   http.post(address);
   http.sendHeader("Content-Type", F("application/json"));
+  http.sendHeader("Content-Length", postMessage.length());
   http.sendHeader("resource_id", resource_id);
   http.sendHeader("token", resource_token);
   http.sendHeader("api_token", api_token);
@@ -198,6 +201,7 @@ bool DFDataset::updateItem() {
   http.beginRequest();
   http.put(address);
   http.sendHeader("Content-Type", F("application/json"));
+  http.sendHeader("Content-Length", postMessage.length());
   http.sendHeader("resource_id", resource_id);
   http.sendHeader("token", resource_token);
   http.sendHeader("api_token", api_token);
