@@ -78,6 +78,9 @@ bool DFDataset::logItem() {
   activity_id = activity_id != NULL ? activity_id : "";
   device_id = device_id != NULL ? device_id : "";
 
+  // url encode activity id string because it will be part of the URL
+  activity_id = urlencode(activity_id);
+
   // do transmission
 #ifdef ARDUINO_SAMD_NANO_33_IOT
   // compile address
@@ -482,4 +485,35 @@ void DFDataset::setActivityLEDPin(int ledPin) {
 
 void DFDataset::setLogging(bool log) {
   logging = log;
+}
+
+const char* DFDataset::urlencode(const char* str)
+{
+  String encodedString="";
+  char c;
+  char code0;
+  char code1;
+  char code2;
+  for (int i =0; i < strlen(str); i++){
+    c=str[i];
+    if (isalnum(c)){
+      encodedString+=c;
+    } else {
+      code1=(c & 0xf)+'0';
+      if ((c & 0xf) >9){
+          code1=(c & 0xf) - 10 + 'A';
+      }
+      c=(c>>4)&0xf;
+      code0=c+'0';
+      if (c > 9){
+          code0=c - 10 + 'A';
+      }
+      code2='\0';
+      encodedString+='%';
+      encodedString+=code0;
+      encodedString+=code1;
+    }
+    yield();
+  }
+  return encodedString.c_str();
 }
