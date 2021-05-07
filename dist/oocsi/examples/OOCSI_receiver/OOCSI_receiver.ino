@@ -50,8 +50,10 @@ void loop() {
   // put your main code here, to run repeatedly:
   // ...
 
-  // let OOCSI check to process incoming data
+  // let OOCSI check for incoming data
+  // use keepAlive() if you do NOT need to receive data
   oocsi.check();
+  delay(500);
 }
 
 // function which OOCSI calls when an OOCSI message is received

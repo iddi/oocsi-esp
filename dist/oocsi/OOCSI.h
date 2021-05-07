@@ -50,6 +50,7 @@ class OOCSI{
     bool connect(const char* Name, const char* hostServer, const char* Wifissid, const char* wifipassword, oocsiCallbackFunction_t callback, void* callbackData);
     void disconnect();
     void check();
+    void keepAlive();
     void subscribe(const char* chan);
     void unsubscribe(const char* chan);
 

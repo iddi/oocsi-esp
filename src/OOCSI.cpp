@@ -265,9 +265,8 @@ bool OOCSI::internalConnect() {
 }
 
 /**
- * @brief  Function which checks for incoming OOCSI messages and maintains the connection
- * to the OOCSI server
- * @note   Should be called periodically, please place this inside the main loop
+ * @brief  Function which checks for incoming OOCSI messages and maintains the connection to the OOCSI server
+ * @note   Should be called periodically, please place this inside the main loop or use keepAlive() if you don't need to process incoming messages
  * @retval None
  */
 void OOCSI::check() {
@@ -322,6 +321,45 @@ void OOCSI::check() {
     client.println('.');
     prevTime = millis();
   }
+}
+
+/**
+ * @brief  Handles the keep-alive handshakes with the OOCSI server; no message processing. Use check() if you want message processing as well.
+ * @note   Should be called periodically, please place this inside the main loop or use check() if you want to receive messages.
+ * @retval None
+ */
+void OOCSI::keepAlive() {
+  //check if we are connected to the WIFI and the OOCSI server
+  if (WiFi.status() != WL_CONNECTED || !client.connected()) {
+    //if not connect oocsi again
+    internalConnect();
+  }
+
+  int messageCount = 0;
+  String message;
+  while (client.available() && messageCount++ < 50) {
+    message = client.readStringUntil('\n');
+
+    if (message.indexOf("ping") >= 0 || message == " " ) {
+      // it's a heart beat, send one back
+      println(F("ping;"));
+      client.println('.');
+      prevTime = millis();
+    } else {
+      if(activityLEDPin > -1) {
+        digitalWrite(activityLEDPin, HIGH);
+        delay(20);
+        digitalWrite(activityLEDPin, LOW);
+        delay(20);
+      }
+    }
+  }
+
+  // client-side ping
+  if (millis() - prevTime > 30000) {
+    client.println('.');
+    prevTime = millis();
+  }  
 }
 
 /**

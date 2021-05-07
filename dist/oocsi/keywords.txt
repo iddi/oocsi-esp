@@ -15,6 +15,7 @@ OOCSI				KEYWORD1
 connect				KEYWORD2
 disconnect			KEYWORD2
 check				KEYWORD2
+keepAlive			KEYWORD2
 subscribe			KEYWORD2
 unsubscribe 		KEYWORD2
 

@@ -61,7 +61,9 @@ void loop() {
   // prints out the raw message (how it is sent to the OOCSI server)
   // oocsi.printSendMessage();
 
-  // needs to be checked in order for OOCSI to process incoming data.
-  oocsi.check();
+  // let OOCSI keep the connection to the OOCSI server fresh and crunchy
+  // use this keepAlive() function if you do NOT need to receive data from OOCSI
+  // use the check() function if you also need to process incoming messages
+  oocsi.keepAlive();
   delay(500);
 }
