@@ -4,7 +4,7 @@ The OOCSI mission is to create a design middleware for use by designers and crea
 
 There are two basic components that form an OOCSI network: the client and the server. While the server can be started from the command line (see here), the client interface need to be embedded in other code and allows this code to access the OOCSI network, to send and receive data in a simple way.
 
-The OOCSI for ESP library is made for the Arduino IDE and it allows to directly use most of the OOCSI functionality in small-scale systems. We tested this library with the ESP32 and ESP8266. The library also supports Arduino Nano 33 IoT devices from version 1.5.1.
+The OOCSI for ESP library is made for the Arduino IDE and it allows to directly use most of the OOCSI functionality in small-scale systems. We tested this library with the ESP32 and ESP8266. The library also supports Arduino Nano 33 IoT devices from version 1.5.1, and Arduino UNO Wifi Rev2 board from version 1.5.5.
 
 # How to install
 To install the library, download the library archive **oocsi.zip** from the latest [release](https://github.com/iddi/oocsi-esp/releases) and unpack **oocsi.zip** into the libraries folder of your Arduino IDE (usually here: Documents/Arduino/libraries/). After this, restart the Arduino IDE and check whether a new examples category "OOCSI" is shown. If yes, all fine, start coding (jump to 'How to use'). 
@@ -15,7 +15,7 @@ In case this does not work yet, check again that the library is in the right fol
 The library "ArduinoJson" is *required* by the OOCSI library. Follow the [step-by-step guide](https://arduinojson.org/v6/doc/installation/) to install it in your Arduino IDE. Please ensure that you install version 6 or higher of "ArduinoJson".
 
 **Notice from version 1.5.1**
-This library supports Arduino Nano 33 IoT boards from version 1.5.1. The library "ArduinoHttpClient" is *required* for this board (*not* for ESP boards). The ArduinoHttpClient library can be installed using the Arduino library manager.
+This library supports Arduino Nano 33 IoT boards from version 1.5.1. The library "ArduinoHttpClient" is *required* for this board (*not* for ESP boards). The ArduinoHttpClient library can be installed using the Arduino library manager. Another board that requires this library is the Arduino UNO Wifi Rev2.
 
 # How to use
 To use OOCSI for ESP, please check out the example code that is packaged with the library. Below, the different functions of the library will be explained divided into the following parts: connecting to a network, sending data to the network and receiving data from the network. We will use similar code as in the library examples.
