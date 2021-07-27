@@ -82,7 +82,7 @@ bool DFDataset::logItem() {
   activity_id = urlencode(activity_id);
 
   // do transmission
-#ifdef ARDUINO_SAMD_NANO_33_IOT
+#if defined(ARDUINO_SAMD_MKRWIFI1010) || defined(ARDUINO_AVR_UNO_WIFI_REV2) || defined(ARDUINO_SAMD_NANO_33_IOT) || defined(ARDUINO_NANO_RP2040_CONNECT)
   // compile address
   snprintf_P(address, sizeof(address), PSTR("/datasets/ts/log/%i/%s"), dataset_id, activity_id);
 
@@ -139,7 +139,7 @@ bool DFDataset::addItem() {
   resource_token = resource_token != NULL ? resource_token : "";
 
   // do transmission
-#ifdef ARDUINO_SAMD_NANO_33_IOT
+#if defined(ARDUINO_SAMD_MKRWIFI1010) || defined(ARDUINO_AVR_UNO_WIFI_REV2) || defined(ARDUINO_SAMD_NANO_33_IOT) || defined(ARDUINO_NANO_RP2040_CONNECT)
   // compile address
   snprintf_P(address, sizeof(address), PSTR("/datasets/entity/%i/item/"), dataset_id);
 
@@ -196,7 +196,7 @@ bool DFDataset::updateItem() {
   resource_token = resource_token != NULL ? resource_token : "";
 
   // do transmission
-#ifdef ARDUINO_SAMD_NANO_33_IOT
+#if defined(ARDUINO_SAMD_MKRWIFI1010) || defined(ARDUINO_AVR_UNO_WIFI_REV2) || defined(ARDUINO_SAMD_NANO_33_IOT) || defined(ARDUINO_NANO_RP2040_CONNECT)
   // compile address
   snprintf_P(address, sizeof(address), PSTR("/datasets/entity/%i/item/"), dataset_id);
 
@@ -249,7 +249,7 @@ bool DFDataset::deleteItem() {
   resource_token = resource_token != NULL ? resource_token : "";
 
   // do transmission
-#ifdef ARDUINO_SAMD_NANO_33_IOT
+#if defined(ARDUINO_SAMD_MKRWIFI1010) || defined(ARDUINO_AVR_UNO_WIFI_REV2) || defined(ARDUINO_SAMD_NANO_33_IOT) || defined(ARDUINO_NANO_RP2040_CONNECT)
   // compile address
   snprintf_P(address, sizeof(address), PSTR("/datasets/entity/%i/item/"), dataset_id);
 
@@ -302,7 +302,7 @@ bool DFDataset::getItem() {
   resource_token = resource_token != NULL ? resource_token : "";
 
   // do transmission
-#ifdef ARDUINO_SAMD_NANO_33_IOT
+#if defined(ARDUINO_SAMD_MKRWIFI1010) || defined(ARDUINO_AVR_UNO_WIFI_REV2) || defined(ARDUINO_SAMD_NANO_33_IOT) || defined(ARDUINO_NANO_RP2040_CONNECT)
   // compile address
   snprintf_P(address, sizeof(address), PSTR("/datasets/entity/%i/item/"), dataset_id);
 
