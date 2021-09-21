@@ -109,7 +109,7 @@ bool DFDataset::logItem() {
   snprintf_P(address, sizeof(address), PSTR("http://%s/datasets/ts/log/%i/%s"), host, dataset_id, activity_id);
 
   HTTPClient http;
-  http.begin(address/*, root_ca_df*/);
+  http.begin(wifi, address/*, root_ca_df*/);
   http.addHeader("Content-Type", F("application/json"));
   http.addHeader("api_token", api_token);
   http.addHeader("source_id", device_id);
@@ -166,7 +166,7 @@ bool DFDataset::addItem() {
   snprintf_P(address, sizeof(address), PSTR("http://%s/datasets/entity/%i/item/"), host, dataset_id);
 
   HTTPClient http;
-  http.begin(address/*, root_ca_df*/);
+  http.begin(wifi, address/*, root_ca_df*/);
   http.addHeader("Content-Type", F("application/json"));
   http.addHeader("resource_id", resource_id);
   http.addHeader("token", resource_token);
@@ -223,7 +223,7 @@ bool DFDataset::updateItem() {
   snprintf_P(address, sizeof(address), PSTR("http://%s/datasets/entity/%i/item/"), host, dataset_id);
 
   HTTPClient http;
-  http.begin(address/*, root_ca_df*/);
+  http.begin(wifi, address/*, root_ca_df*/);
   http.addHeader("Content-Type", "application/json");
   http.addHeader("resource_id", resource_id);
   http.addHeader("token", resource_token);
@@ -275,7 +275,7 @@ bool DFDataset::deleteItem() {
   snprintf_P(address, sizeof(address), PSTR("http://%s/datasets/entity/%i/item/"), host, dataset_id);
   
   HTTPClient http;
-  http.begin(address/*, root_ca_df*/);
+  http.begin(wifi, address/*, root_ca_df*/);
   http.addHeader("Content-Type", F("application/json"));
   http.addHeader("resource_id", resource_id);
   http.addHeader("token", resource_token);
@@ -337,7 +337,7 @@ bool DFDataset::getItem() {
   snprintf_P(address, sizeof(address), PSTR("http://%s/datasets/entity/%i/item/"), host, dataset_id);
 
   HTTPClient http;
-  http.begin(address/*, root_ca_df*/);
+  http.begin(wifi, address/*, root_ca_df*/);
   http.addHeader("Content-Type", F("application/json"));
   http.addHeader("resource_id", resource_id);
   http.addHeader("token", resource_token);

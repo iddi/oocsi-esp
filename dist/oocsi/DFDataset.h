@@ -81,6 +81,9 @@ class DFDataset {
 
   private:
 
+    // wifi connection
+    WiFiClient wifi;
+
     // configuration
     const char* host;
     char address[200];
@@ -90,10 +93,6 @@ class DFDataset {
     const char* resource_id;
     const char* resource_token;
     int dataset_id = 0;
-
-#if defined(ARDUINO_SAMD_MKRWIFI1010) || defined(ARDUINO_AVR_UNO_WIFI_REV2) || defined(ARDUINO_SAMD_NANO_33_IOT) || defined(ARDUINO_NANO_RP2040_CONNECT)
-    WiFiClient wifi;
-#endif
 
     // data
     StaticJsonDocument<MSG_SIZE> jsonDocument;
