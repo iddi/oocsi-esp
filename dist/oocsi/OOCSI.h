@@ -66,6 +66,8 @@ class OOCSI{
     OOCSI addLongArray(const char* key, long* value, int len);
     OOCSI addFloatArray(const char* key, float* value, int len);
     OOCSI addStringArray(const char* key, String value[], int len);
+    JsonObject addJsonObject(const char* key);
+    JsonArray addJsonArray(const char* key);
     void sendMessage();
     void printSendMessage();
 

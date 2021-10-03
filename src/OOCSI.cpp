@@ -581,6 +581,20 @@ OOCSI OOCSI::addStringArray(const char* key, String value[], int len) {
   return *this;
 }
 
+// function for adding a nested Json object to the message
+// returns the new object which can then be filled with data
+JsonObject OOCSI::addJsonObject(const char* key) {
+  JsonObject object = jsonMessage.createNestedObject(key);
+  return object;
+}
+
+// function for adding a nested Json array to the message,
+// returns the new array which can then be filled with data
+JsonArray OOCSI::addJsonArray(const char* key) {
+  JsonArray array = jsonMessage.createNestedArray(key);
+  return array;
+}
+
 // close and send out the message
 void OOCSI::sendMessage() {
   client.print("sendraw ");

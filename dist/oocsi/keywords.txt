@@ -49,6 +49,8 @@ addIntArray 		KEYWORD2
 addLongArray 		KEYWORD2
 addFloatArray		KEYWORD2
 addStringArray		KEYWORD2
+addJsonObject		KEYWORD2
+addJsonArray		KEYWORD2
 sendMessage 		KEYWORD2
 printSendMessage	KEYWORD2
 
