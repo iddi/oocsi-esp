@@ -269,7 +269,8 @@ bool OOCSI::internalConnect() {
  * @note   Should be called periodically, please place this inside the main loop or use keepAlive() if you don't need to process incoming messages
  * @retval None
  */
-void OOCSI::check() {
+bool OOCSI::check() {
+  bool recieveSuccessful = false;
   //check if we are connected to the WIFI and the OOCSI server
   if (WiFi.status() != WL_CONNECTED || !client.connected()) {
     //if not connect oocsi again
@@ -295,6 +296,7 @@ void OOCSI::check() {
         receivedMessage = false;
       }
       receivedMessage = true;
+      recieveSuccessful = true;
       if(processMessage != NULL) {
         processMessage();
       } else if (processMessageDataHandle != NULL) {
@@ -321,6 +323,8 @@ void OOCSI::check() {
     client.println('.');
     prevTime = millis();
   }
+
+  return recieveSuccessful;
 }
 
 /**
