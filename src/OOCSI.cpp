@@ -42,6 +42,8 @@ bool OOCSI::connect(const char* name, const char* hostServer) {
 bool OOCSI::connect(const char* name, const char* hostServer, void (*func)()) {
   receivedMessage = false;
   processMessage = func;
+  processMessageData = NULL;
+  processMessageDataHandle = NULL;
 
   OOCSIName = name;
   host = hostServer;
@@ -92,6 +94,7 @@ bool OOCSI::connect(const char* name, const char* hostServer, const char* Wifiss
  */
 bool OOCSI::connect(const char* name, const char* hostServer, oocsiCallbackFunction_t callback, void* callbackData) {
   receivedMessage = false;
+  processMessage = NULL;
   processMessageDataHandle = callback;
   processMessageData = callbackData;
 
@@ -269,7 +272,9 @@ bool OOCSI::internalConnect() {
  * @note   Should be called periodically, please place this inside the main loop or use keepAlive() if you don't need to process incoming messages
  * @retval None
  */
-void OOCSI::check() {
+bool OOCSI::check() {
+  bool recieveSuccessful = false;
+
   //check if we are connected to the WIFI and the OOCSI server
   if (WiFi.status() != WL_CONNECTED || !client.connected()) {
     //if not connect oocsi again
@@ -280,27 +285,30 @@ void OOCSI::check() {
   String message;
   while (client.available() && messageCount++ < 20) {
     message = client.readStringUntil('\n');
-
     if (message.indexOf("ping") >= 0 || message == " " ) {
       // it's a heart beat, send one back
       println(F("ping;"));
       client.println('.');
       prevTime = millis();
     } else if (message.length() > 0) {
+
       // it's a real message, handle it
       DeserializationError error = deserializeJson(jsonDocument, message.c_str());
+
       if (error) {
         print(F("Message parsing failed: "));
         println(error.c_str());
         receivedMessage = false;
       }
+
       receivedMessage = true;
+      recieveSuccessful = true;
+
       if(processMessage != NULL) {
         processMessage();
       } else if (processMessageDataHandle != NULL) {
         processMessageDataHandle(processMessageData);  
       }
-      
 
       if(activityLEDPin > -1) {
         delay(20);
@@ -321,6 +329,8 @@ void OOCSI::check() {
     client.println('.');
     prevTime = millis();
   }
+
+  return recieveSuccessful;
 }
 
 /**
