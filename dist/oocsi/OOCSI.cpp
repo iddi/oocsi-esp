@@ -42,8 +42,8 @@ bool OOCSI::connect(const char* name, const char* hostServer) {
 bool OOCSI::connect(const char* name, const char* hostServer, void (*func)()) {
   receivedMessage = false;
   processMessage = func;
-  processMessageData = NULL;
   processMessageDataHandle = NULL;
+  processMessageData = NULL;
 
   OOCSIName = name;
   host = hostServer;
@@ -268,16 +268,16 @@ bool OOCSI::internalConnect() {
 }
 
 /**
- * @brief  Function which checks for incoming OOCSI messages and maintains the connection to the OOCSI server
+ * @brief  Function which checks for incoming OOCSI messages, processes them if handler is provided in connect(), and maintains the connection to the OOCSI server
  * @note   Should be called periodically, please place this inside the main loop or use keepAlive() if you don't need to process incoming messages
  * @retval None
  */
 bool OOCSI::check() {
-  bool recieveSuccessful = false;
+  bool receiveSuccessful = false;
 
   //check if we are connected to the WIFI and the OOCSI server
   if (WiFi.status() != WL_CONNECTED || !client.connected()) {
-    //if not connect oocsi again
+    //if not connect OOCSI again
     internalConnect();
   }
 
@@ -302,7 +302,7 @@ bool OOCSI::check() {
       }
 
       receivedMessage = true;
-      recieveSuccessful = true;
+      receiveSuccessful = true;
 
       if(processMessage != NULL) {
         processMessage();
@@ -330,7 +330,7 @@ bool OOCSI::check() {
     prevTime = millis();
   }
 
-  return recieveSuccessful;
+  return receiveSuccessful;
 }
 
 /**
