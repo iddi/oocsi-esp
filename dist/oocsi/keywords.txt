@@ -7,6 +7,7 @@
 #######################################
 
 OOCSI				KEYWORD1
+OOCSIDevice			KEYWORD1
 
 
 #######################################
@@ -70,9 +71,25 @@ getClients			KEYWORD2
 getChannels			KEYWORD2
 containsClient		KEYWORD2
 
+heyOOCSI			KEYWORD2
+addProperty			KEYWORD2
+addLocation			KEYWORD2
+addSensor			KEYWORD2
+addNumber			KEYWORD2
+addBinarySensor		KEYWORD2
+addSwitch			KEYWORD2
+addLight			KEYWORD2
+sayHi				KEYWORD2
+
 
 #######################################
 # Constants (LITERAL1)
 #######################################
 
-#	LITERAL1
+LIGHT_SPECTRUM_RGB				LITERAL1
+LIGHT_SPECTRUM_CCT				LITERAL1
+LIGHT_SPECTRUM_WHITE			LITERAL1
+LIGHT_SPECTRUM_RGB_CCT			LITERAL1
+LIGHT_SPECTRUM_CCT_WHITE			LITERAL1
+LIGHT_SPECTRUM_RGB_WHITE			LITERAL1
+LIGHT_SPECTRUM_RGB_CCT_WHITE		LITERAL1

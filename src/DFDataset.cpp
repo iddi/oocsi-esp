@@ -1,6 +1,7 @@
 /***************************************************************************
- * The DataFoundry library for the ESP32, ESP8266, and Arduino Nano 33 IoT 
- * to store and retrieve data from ESPs and Arduino Nano 33 IoT on the Data 
+ * The DataFoundry library for the ESP32, ESP8266, Arduino MKR Wifi 101, 
+ * Arduino UNO Wifi, Arduino Nano 33 IoT, and Arduino Nano RP2040 
+ * to store and retrieve data from ESPs and Arduinos on the Data 
  * Foundry platform.
  *
  * Developed by Mathias Funk

@@ -1,8 +1,9 @@
 /***************************************************************************
- * The OOCSI library for the ESP32 and ESP 8266 is created to connect ESPs
- * to the OOCSI platform (https://github.com/iddi/oocsi).
+ * The OOCSI library for the ESP32, ESP8266, Arduino MKR Wifi 101, 
+ * Arduino UNO Wifi, Arduino Nano 33 IoT, and Arduino Nano RP2040 to 
+ * connect to the OOCSI platform (https://github.com/iddi/oocsi).
  * It allows to send and receive from the OOCSI platform and allows for easy
- * set-up of the ESP32 and ESP8266 platforms as OOCSI clients.
+ * setup of ESPs and Arduinos as OOCSI clients.
  *
  * Developed by Jort Band, Mathias Funk
  **************************************************************************/
@@ -35,7 +36,8 @@
 #endif
 #include <ArduinoJson.h>
 
-class OOCSI{
+class OOCSIDevice;
+class OOCSI {
   typedef void(*oocsiCallbackFunction_t)(void*);
 
   public:
@@ -53,6 +55,7 @@ class OOCSI{
     void keepAlive();
     void subscribe(const char* chan);
     void unsubscribe(const char* chan);
+    OOCSIDevice heyOOCSI(const char* name);
 
     // sending data
     OOCSI newMessage(const char* receiver);

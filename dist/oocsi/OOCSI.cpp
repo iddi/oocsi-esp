@@ -1,8 +1,9 @@
 /***************************************************************************
- * The OOCSI library for the ESP32 and ESP 8266 is created to connect ESPs
- * to the OOCSI platform (https://github.com/iddi/oocsi).
+ * The OOCSI library for the ESP32, ESP8266, Arduino MKR Wifi 101, 
+ * Arduino UNO Wifi, Arduino Nano 33 IoT, and Arduino Nano RP2040 to 
+ * connect to the OOCSI platform (https://github.com/iddi/oocsi).
  * It allows to send and receive from the OOCSI platform and allows for easy
- * set-up of the ESP32 and ESP8266 platforms as OOCSI clients.
+ * setup of ESPs and Arduinos as OOCSI clients.
  *
  * Developed by Jort Band, Mathias Funk
  **************************************************************************/
@@ -620,7 +621,7 @@ void OOCSI::printSendMessage() {
     serializeJson(jsonMessage, Serial);
 }
 
-
+// return client list
 String OOCSI::getClients() {
   //basically send a message and then wait for the response client list.
   //first read the standard messages
@@ -639,6 +640,7 @@ String OOCSI::getClients() {
   return message;
 }
 
+// return channel list
 String OOCSI::getChannels() {
   //basically send a message and then wait for the response channels list.
   //first read the standard messages
@@ -656,6 +658,7 @@ String OOCSI::getChannels() {
   return message;
 }
 
+// check whether client is included in client list
 bool OOCSI::containsClient(const char* clientName) {
   //check for the client.
   String clientlist = getClients();
@@ -667,35 +670,42 @@ bool OOCSI::containsClient(const char* clientName) {
   return true;
 }
 
+// print message if logging is activated
 void OOCSI::print(const String &message) {
   if(logging)
     Serial.print(message);
 }
 
+// print message if logging is activated
 void OOCSI::print(char message) {
   if(logging)
     Serial.print(message);
 }
 
+// print message if logging is activated
 void OOCSI::println() {
   if(logging)
     Serial.println();
 }
 
+// print message if logging is activated
 void OOCSI::println(const String &message) {
   if(logging)
     Serial.println(message);
 }
 
+// print message if logging is activated
 void OOCSI::println(char message) {
   if(logging)
     Serial.println(message);
 }
 
+// set activity pin
 void OOCSI::setActivityLEDPin(int ledPin) {
   activityLEDPin = ledPin;
 }
 
+// activate or deactivate logging
 void OOCSI::setLogging(bool log) {
   logging = log;
 }
