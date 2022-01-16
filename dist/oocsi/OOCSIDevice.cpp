@@ -90,21 +90,24 @@ void OOCSIDevice::addLight(const char* lightName, const char* lightChannel, cons
   	case 4:
   	case 6:
   	case 7:
-    	spectrums.add("RGB");
+      spectrums.add("RGB");
+      break;
   }
   switch(spectrum) {
   	case 2:
   	case 4:
   	case 5:
   	case 7:
-    	spectrums.add("CCT");
+      spectrums.add("CCT");
+      break;
   }
   switch(spectrum) {
   	case 3:
   	case 5:
   	case 6:
   	case 7:
-    	spectrums.add("WHITE");
+      spectrums.add("WHITE");
+      break;
   }
 }
 
@@ -123,21 +126,24 @@ void OOCSIDevice::addLight(const char* lightName, const char* lightChannel, cons
   	case 4:
   	case 6:
   	case 7:
-    	spectrums.add("RGB");
+      spectrums.add("RGB");
+      break;
   }
   switch(spectrum) {
   	case 2:
   	case 4:
   	case 5:
   	case 7:
-    	spectrums.add("CCT");
+      spectrums.add("CCT");
+      break;
   }
   switch(spectrum) {
   	case 3:
   	case 5:
   	case 6:
   	case 7:
-    	spectrums.add("WHITE");
+      spectrums.add("WHITE");
+      break;
   }
   light["max"] = miredMax;
   light["min"] = miredMin;
