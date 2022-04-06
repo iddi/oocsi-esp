@@ -599,11 +599,19 @@ JsonObject OOCSI::addJsonObject(const char* key) {
   return object;
 }
 
+void OOCSI::setJsonObject(const char* key, JsonObject obj) {
+  jsonMessage[key] = obj;
+}
+
 // function for adding a nested Json array to the message,
 // returns the new array which can then be filled with data
 JsonArray OOCSI::addJsonArray(const char* key) {
   JsonArray array = jsonMessage.createNestedArray(key);
   return array;
+}
+
+void OOCSI::setJsonArray(const char* key, JsonArray arr) {
+  jsonMessage[key] = arr;
 }
 
 // close and send out the message
@@ -617,8 +625,10 @@ void OOCSI::sendMessage() {
 
 // log the outgoing message
 void OOCSI::printSendMessage() {
-  if(logging)
+  if(logging) {
     serializeJson(jsonMessage, Serial);
+    Serial.println();
+  }
 }
 
 // return client list
@@ -668,6 +678,11 @@ bool OOCSI::containsClient(const char* clientName) {
   }
 
   return true;
+}
+
+// return the client name
+String OOCSI::getName() {
+  return OOCSIName;
 }
 
 // print message if logging is activated

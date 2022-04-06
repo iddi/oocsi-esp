@@ -55,6 +55,7 @@ class OOCSI {
     void keepAlive();
     void subscribe(const char* chan);
     void unsubscribe(const char* chan);
+    OOCSIDevice heyOOCSI();
     OOCSIDevice heyOOCSI(const char* name);
 
     // sending data
@@ -70,7 +71,9 @@ class OOCSI {
     OOCSI addFloatArray(const char* key, float* value, int len);
     OOCSI addStringArray(const char* key, String value[], int len);
     JsonObject addJsonObject(const char* key);
+    void setJsonObject(const char* key, JsonObject obj);
     JsonArray addJsonArray(const char* key);
+    void setJsonArray(const char* key, JsonArray arr);
     void sendMessage();
     void printSendMessage();
 
@@ -91,13 +94,14 @@ class OOCSI {
     bool has(const char* key);
     String keys();
     void printMessage();
-    void setActivityLEDPin(int ledPin);
-    void setLogging(bool log);
 
     // misc functions
+    void setActivityLEDPin(int ledPin);
+    void setLogging(bool log);
     String getClients();
     String getChannels();
     bool containsClient(const char* clientName);
+    String getName();
 
 
   private:

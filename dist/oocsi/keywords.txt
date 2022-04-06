@@ -20,6 +20,7 @@ keepAlive			KEYWORD2
 subscribe			KEYWORD2
 unsubscribe 		KEYWORD2
 
+getName			 	KEYWORD2
 getSender			KEYWORD2
 getRecipient		KEYWORD2
 getBool				KEYWORD2
@@ -51,7 +52,9 @@ addLongArray 		KEYWORD2
 addFloatArray		KEYWORD2
 addStringArray		KEYWORD2
 addJsonObject		KEYWORD2
+setJsonObject		KEYWORD2
 addJsonArray		KEYWORD2
+setJsonArray		KEYWORD2
 sendMessage 		KEYWORD2
 printSendMessage	KEYWORD2
 
@@ -80,6 +83,8 @@ addBinarySensor		KEYWORD2
 addSwitch			KEYWORD2
 addLight			KEYWORD2
 sayHi				KEYWORD2
+setValue			KEYWORD2
+setState			KEYWORD2
 
 
 #######################################

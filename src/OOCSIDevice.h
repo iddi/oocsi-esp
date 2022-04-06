@@ -24,26 +24,47 @@
 class OOCSI;
 class OOCSIDevice {
   public:
-  	// setup, connection, subscription
-    OOCSIDevice(const char* prototypeName, OOCSI &client, const char* OOCSIName);
+  	// setup
+    OOCSIDevice(const char* prototypeName, OOCSI &client);
 
+    // configure the device
     void addProperty(const char* property, const char* propertyValue);
-    void addLocation(const char* locationName, const char* latitude,const char* longitude);
-    void addSensor(const char* sensorName , const char* sensorChannel, const char* sensorType, const char* sensorDefaultValue, const char* sensorUnit, const char* icon);
-    void addNumber(const char* numberName , const char* numberChannel, const char* numberMin, const char* numberMax, const char* numberDefaultValue, const char* numberUnit, const char* icon);
-    void addBinarySensor(const char* sensorName , const char* sensorChannel, const char* sensorType, const char* sensorDefaultState, const char* icon);
-    void addSwitch(const char* switchName , const char* switchChannel, const char* switchDefaultState, const char* icon);
-    void addLight(const char* lightName , const char* lightChannel, const char* ledType, int spectrum, const char* lightDefaultState,  int defaultBrightness, int miredMax, int miredMin, const char* icon);
-    void addLight(const char* lightName , const char* lightChannel, const char* ledType, int spectrum, const char* lightDefaultState,  int defaultBrightness, const char* icon);
+    void addLocation(const char* locationName, int latitude, int longitude);
+    void addSensor(const char* sensorName , const char* sensorChannel, const char* sensorType, int sensorDefaultValue, const char* sensorUnit, const char* icon);
+    void addNumber(const char* numberName , const char* numberChannel, float numberDefaultValue, const char* numberUnit, const char* icon);
+    void addNumber(const char* numberName , const char* numberChannel, float numberMin, float numberMax, float numberDefaultValue, const char* numberUnit, const char* icon);
+    void addBinarySensor(const char* sensorName , const char* sensorChannel, const char* sensorType, bool sensorDefaultState, const char* icon);
+    void addSwitch(const char* switchName , const char* switchChannel, bool switchDefaultState, const char* icon);
+    void addLight(const char* lightName , const char* lightChannel, const char* ledType, int spectrum, bool lightDefaultState,  int defaultBrightness, int miredMax, int miredMin, const char* icon);
+    void addLight(const char* lightName , const char* lightChannel, const char* ledType, int spectrum, bool lightDefaultState,  int defaultBrightness, const char* icon);
 
+    // finalize setup with a single message to OOCSI server
     void sayHi();
+
+    // get value or state of device components after setup
+    float getValue(const char* componentName, float defaultValue);
+    float getValue(const char* componentName, const char* key, float defaultValue);
+    bool getState(const char* componentName, bool defaultState);
+    bool getState(const char* componentName, const char* key, bool defaultState);
+
+    // set value or state of device components after setup
+    void setValue(const char* componentName, float value);
+    void setValue(const char* componentName, const char* key, float value);
+    void setState(const char* componentName, bool state);
+    void setState(const char* componentName, const char* key, bool state);
 
   private:
     OOCSI* oocsi;
+    const char* prototypeName;
+
+    // just for the sayHi message
     JsonObject device;
     JsonObject properties;
     JsonObject components;
     JsonObject location;
+
+    // for later when setting values and states
+    JsonObject channels;
 };
 
 #endif
