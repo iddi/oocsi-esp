@@ -20,6 +20,11 @@ DFDataset::DFDataset(const char* server, int id, const char* token) {
   api_token = token;
   logging = true;
   jsonMessage.clear();
+
+  device_id = NULL;
+  activity_id = NULL;
+  resource_id = NULL;
+  resource_token = NULL;
 }
 
 // iot datasets
@@ -80,12 +85,13 @@ bool DFDataset::logItem() {
   device_id = device_id != NULL ? device_id : "";
 
   // url encode activity id string because it will be part of the URL
-  activity_id = urlencode(activity_id);
+  char activity_id_url[200];
+  urlencode(activity_id_url, activity_id);
 
   // do transmission
 #if defined(ARDUINO_SAMD_MKRWIFI1010) || defined(ARDUINO_AVR_UNO_WIFI_REV2) || defined(ARDUINO_SAMD_NANO_33_IOT) || defined(ARDUINO_NANO_RP2040_CONNECT)
   // compile address
-  snprintf_P(address, sizeof(address), PSTR("/datasets/ts/log/%i/%s"), dataset_id, activity_id);
+  snprintf_P(address, sizeof(address), PSTR("/datasets/ts/log/%i/%s"), dataset_id, activity_id_url);
 
   HttpClient http = HttpClient(wifi, host, 80);  
   http.beginRequest();
@@ -107,7 +113,7 @@ bool DFDataset::logItem() {
   return httpCode == 200;
 #else
   // compile address
-  snprintf_P(address, sizeof(address), PSTR("http://%s/datasets/ts/log/%i/%s"), host, dataset_id, activity_id);
+  snprintf_P(address, sizeof(address), PSTR("http://%s/datasets/ts/log/%i/%s"), host, dataset_id, activity_id_url);
 
   HTTPClient http;
   http.begin(wifi, address/*, root_ca_df*/);
@@ -318,7 +324,7 @@ bool DFDataset::getItem() {
   http.print("");
   http.endRequest();
   
-  int httpCode = http.responseStatusCode();
+  /*int httpCode = */http.responseStatusCode();
   String jsonResponse = http.responseBody();
 
   //http.end();
@@ -488,17 +494,17 @@ void DFDataset::setLogging(bool log) {
   logging = log;
 }
 
-const char* DFDataset::urlencode(const char* str)
+void DFDataset::urlencode(char* dst, const char* src)
 {
-  String encodedString="";
+  char encodedString[200] = "";
   char c;
   char code0;
   char code1;
-  char code2;
-  for (int i =0; i < strlen(str); i++){
-    c=str[i];
+
+  for (int i =0; i < strlen(src); i++){
+    c=src[i];
     if (isalnum(c)){
-      encodedString+=c;
+      sprintf(encodedString, "%s%c", encodedString, c);
     } else {
       code1=(c & 0xf)+'0';
       if ((c & 0xf) >9){
@@ -509,12 +515,12 @@ const char* DFDataset::urlencode(const char* str)
       if (c > 9){
           code0=c - 10 + 'A';
       }
-      code2='\0';
-      encodedString+='%';
-      encodedString+=code0;
-      encodedString+=code1;
+      sprintf(encodedString, "%s%c", encodedString, '%');
+      sprintf(encodedString, "%s%c", encodedString, code0);
+      sprintf(encodedString, "%s%c", encodedString, code1);
     }
     yield();
   }
-  return encodedString.c_str();
+
+  strcpy(dst, encodedString);
 }

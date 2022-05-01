@@ -497,15 +497,13 @@ void DFDataset::setLogging(bool log) {
 void DFDataset::urlencode(char* dst, const char* src)
 {
   char encodedString[200] = "";
-  //String encodedString="";
   char c;
   char code0;
   char code1;
-  //char code2;
+
   for (int i =0; i < strlen(src); i++){
     c=src[i];
     if (isalnum(c)){
-      // encodedString+=c;
       sprintf(encodedString, "%s%c", encodedString, c);
     } else {
       code1=(c & 0xf)+'0';
@@ -517,17 +515,12 @@ void DFDataset::urlencode(char* dst, const char* src)
       if (c > 9){
           code0=c - 10 + 'A';
       }
-      code2='\0';
-      //encodedString+='%';
       sprintf(encodedString, "%s%c", encodedString, '%');
-      //encodedString+=code0;
       sprintf(encodedString, "%s%c", encodedString, code0);
-      //encodedString+=code1;
       sprintf(encodedString, "%s%c", encodedString, code1);
     }
     yield();
   }
 
-  //return encodedString.c_str();
   strcpy(dst, encodedString);
 }
