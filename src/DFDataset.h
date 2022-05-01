@@ -110,6 +110,7 @@ class DFDataset {
     void println(const String &message);
     void println(char message);
     const char* urlencode(const char* str);
+    void urlencode(char* dst, const char* src);
 };
 
 #endif
