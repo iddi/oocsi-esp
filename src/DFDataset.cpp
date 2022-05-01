@@ -20,6 +20,11 @@ DFDataset::DFDataset(const char* server, int id, const char* token) {
   api_token = token;
   logging = true;
   jsonMessage.clear();
+
+  device_id = NULL;
+  activity_id = NULL;
+  resource_id = NULL;
+  resource_token = NULL;
 }
 
 // iot datasets
@@ -319,7 +324,7 @@ bool DFDataset::getItem() {
   http.print("");
   http.endRequest();
   
-  int httpCode = http.responseStatusCode();
+  /*int httpCode = */http.responseStatusCode();
   String jsonResponse = http.responseBody();
 
   //http.end();
@@ -496,7 +501,7 @@ void DFDataset::urlencode(char* dst, const char* src)
   char c;
   char code0;
   char code1;
-  char code2;
+  //char code2;
   for (int i =0; i < strlen(src); i++){
     c=src[i];
     if (isalnum(c)){
