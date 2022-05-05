@@ -1,0 +1,34 @@
+{
+  "name": "OOCSI",
+  "version": "1.5.13",
+  "description": "OOCSI client library for easy connection and communication with the ESP32, ESP8266, Arduino MKR1000, Nano 33 IoT and RP2040 modules over the OOCSI platform.",
+  "keywords": "connectivity, communication, middleware, IoT, industrial design, prototyping",
+  "repository":
+  {
+    "type": "git",
+    "url": "https://github.com/iddi/oocsi-esp.git"
+  },
+  "authors":
+  [
+    {
+      "name": "Mathias Funk",
+      "email": "m.funk@tue.nl",
+      "url": "https://mathias-funk.com",
+      "maintainer": true
+    },
+    {
+      "name": "Jort Band",
+      "email": "jort@moeilijkedingen.nl"
+    }
+  ],
+  "license": "MIT",
+  "homepage": "https://oocsi.net/",
+  "dependencies": {
+    "bblanchon/ArduinoJson": "~6.19.4"
+  },
+  "exclude": [
+    "temp"
+  ],
+  "frameworks": "*",
+  "platforms": "*"
+}
