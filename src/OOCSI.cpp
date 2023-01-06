@@ -162,6 +162,10 @@ void OOCSI::connectWifi() {
 
   if (WiFi.status() != WL_CONNECTED) {
     println(F("connection attempt failed"));
+  } else {
+#if defined(ESP8266) || defined(ESP32)
+    client.setNoDelay(true);
+#endif
   }
 }
 
@@ -480,7 +484,8 @@ void OOCSI::getStringArray(const char* key, String standard[], String passArray[
 
 JsonObject OOCSI::getJsonObject(const char* key) {
   if(jsonDocument.isNull() || !jsonDocument.containsKey(key)) {
-    return NULL;
+    DynamicJsonDocument doc(1);
+    return doc.to<JsonObject>();
   } else {
     return jsonDocument[key].as<JsonObject>();
   }
@@ -488,7 +493,8 @@ JsonObject OOCSI::getJsonObject(const char* key) {
 
 JsonArray OOCSI::getJsonArray(const char* key) {
   if(jsonDocument.isNull() || !jsonDocument.containsKey(key)) {
-    return NULL;
+    DynamicJsonDocument doc(1);
+    return doc.to<JsonArray>();
   } else {
     return jsonDocument[key].as<JsonArray>();
   }

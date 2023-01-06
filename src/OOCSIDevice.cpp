@@ -15,13 +15,11 @@ OOCSIDevice::OOCSIDevice(const char* name, OOCSI &client) {
   oocsi = &client;
   prototypeName = name;
 
-  StaticJsonDocument<1000> docDevices;
   device = docDevices.to<JsonObject>();
   properties = device.createNestedObject("properties");
   components = device.createNestedObject("components");
   location = device.createNestedObject("location");
 
-  StaticJsonDocument<1000> docChannels;
   channels = docChannels.to<JsonObject>();
 }
 
