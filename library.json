@@ -1,6 +1,6 @@
 {
   "name": "OOCSI",
-  "version": "1.5.13",
+  "version": "1.5.14",
   "description": "OOCSI client library for easy connection and communication with the ESP32, ESP8266, Arduino MKR1000, Nano 33 IoT and RP2040 modules over the OOCSI platform.",
   "keywords": "connectivity, communication, middleware, IoT, industrial design, prototyping",
   "repository":
