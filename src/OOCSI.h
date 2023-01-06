@@ -90,6 +90,10 @@ class OOCSI {
     void getLongArray(const char* key, long* standard, long* passArray, int arrayLength);
     void getFloatArray(const char* key, float* standard, float* passArray, int arrayLength);
     void getStringArray(const char* key, String standard[], String passArray[], int arrayLength);
+
+    JsonObject getJsonObject(const char* key);
+    JsonArray getJsonArray(const char* key);
+
     long getTimeStamp();
     bool has(const char* key);
     String keys();

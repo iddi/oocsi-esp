@@ -33,6 +33,8 @@ getIntArray 		KEYWORD2
 getLongArray 		KEYWORD2
 getFloatArray		KEYWORD2
 getStringArray 		KEYWORD2
+getJsonObject		KEYWORD2
+getJsonArray		KEYWORD2
 getTimeStamp		KEYWORD2
 has					KEYWORD2
 keys				KEYWORD2

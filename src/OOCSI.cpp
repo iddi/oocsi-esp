@@ -478,6 +478,22 @@ void OOCSI::getStringArray(const char* key, String standard[], String passArray[
   }
 }
 
+JsonObject OOCSI::getJsonObject(const char* key) {
+  if(jsonDocument.isNull() || !jsonDocument.containsKey(key)) {
+    return NULL;
+  } else {
+    return jsonDocument[key].as<JsonObject>();
+  }
+}
+
+JsonArray OOCSI::getJsonArray(const char* key) {
+  if(jsonDocument.isNull() || !jsonDocument.containsKey(key)) {
+    return NULL;
+  } else {
+    return jsonDocument[key].as<JsonArray>();
+  }
+}
+
 String OOCSI::getSender() {
   return getString("sender", "");
 }
