@@ -156,6 +156,6 @@ We have included several examples in the OOCSI for ESP library. The most commonl
 ## Credits
 Initial development: Jort Band
 Stable version and maintenance: Mathias Funk
-Testing and support: Henk Apeldoorn, Geert van den Boomen, Dirk van de Mortel, Eden Chiang
+Testing and support: Henk Apeldoorn, Geert van den Boomen, Dirk van de Mortel, I-Tang(Eden) Chiang
 
 Find the OOCSI mothership project at https://github.com/iddi/oocsi

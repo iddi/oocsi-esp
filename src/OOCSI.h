@@ -29,6 +29,12 @@
         #define MSG_SIZE 1024
     #endif
 #endif
+#ifdef ARDUINO_UNOWIFIR4
+    #include <WiFiS3.h>
+    #ifndef MSG_SIZE
+        #define MSG_SIZE 1024
+    #endif
+#endif
 
 
 #ifndef LED_BUILTIN
