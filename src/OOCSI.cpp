@@ -411,6 +411,14 @@ long OOCSI::getLong(const char* key, long standard) {
   }
 }
 
+unsigned long long OOCSI::getUnsignedLongLong(const char* key, long standard) {
+  if(jsonDocument.isNull() || !jsonDocument.containsKey(key)) {
+    return standard;
+  } else {
+    return jsonDocument[key].as<unsigned long long>();
+  }
+}
+
 float OOCSI::getFloat(const char* key, float standard) {
   if(jsonDocument.isNull() || !jsonDocument.containsKey(key)) {
     return standard;
@@ -508,8 +516,8 @@ String OOCSI::getRecipient() {
   return getString("recipient", "");
 }
 
-long OOCSI::getTimeStamp() {
-  return getLong("timestamp", -1);
+unsigned long long OOCSI::getTimeStamp() {
+  return getUnsignedLongLong("timestamp", 1LL);
 }
 
 bool OOCSI::has(const char* key) {
