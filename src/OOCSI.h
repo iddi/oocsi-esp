@@ -40,6 +40,8 @@
 #ifndef LED_BUILTIN
     #define LED_BUILTIN -1
 #endif
+
+#define ARDUINOJSON_USE_LONG_LONG 1
 #include <ArduinoJson.h>
 
 class OOCSIDevice;
@@ -89,6 +91,7 @@ class OOCSI {
     bool getBool(const char* key, bool standard);
     int getInt(const char* key, int standard);
     long getLong(const char* key, long standard);
+    unsigned long long getUnsignedLongLong(const char* key, long standard);
     float getFloat(const char* key, float standard);
     String getString(const char* key, const char* standard);
     void getBoolArray(const char* key, bool* standard, bool* passArray, int arrayLength);
@@ -100,7 +103,7 @@ class OOCSI {
     JsonObject getJsonObject(const char* key);
     JsonArray getJsonArray(const char* key);
 
-    long getTimeStamp();
+    unsigned long long getTimeStamp();
     bool has(const char* key);
     String keys();
     void printMessage();
