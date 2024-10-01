@@ -13,7 +13,7 @@ const char* ssid = "yourssid";
 const char* password = "yourpassword";
 
 // name for connecting with OOCSI (unique handle)
-const char* OOCSIName = "ESP_OOCSI_CLIENT_SENDER";
+const char* OOCSIName = "ESP_OOCSI_CLIENT_SENDER_####";
 // put the adress of your OOCSI server here, can be URL or IP address string
 const char* hostserver = "your OOCSI server address";
 
