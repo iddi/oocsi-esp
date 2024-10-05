@@ -12,7 +12,7 @@ const char* ssid = "yourssid";
 const char* password = "yourpassword";
 
 // name for connecting with OOCSI (unique handle)
-const char* OOCSIName = "ESP_OOCSI_CLIENT_MC_RECEIVER";
+const char* OOCSIName = "ESP_OOCSI_CLIENT_MC_RECEIVER_####";
 // put the adress of your OOCSI server here, can be URL or IP address string
 const char* hostserver = "your OOCSI server address";
 // name of the channel you want to subscribe to (can subscribe to multiple channels)
