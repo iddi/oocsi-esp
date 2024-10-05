@@ -58,8 +58,8 @@ class OOCSIDevice {
     const char* prototypeName;
 
     // just for the sayHi message
-    StaticJsonDocument<1000> docDevices;
-    StaticJsonDocument<1000> docChannels;
+    JsonDocument docDevices;
+    JsonDocument docChannels;
     JsonObject device;
     JsonObject properties;
     JsonObject components;

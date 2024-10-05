@@ -12,7 +12,7 @@ const char* ssid = "yourssid";
 // Password of your Wifi network.
 const char* password = "yourpassword";
 
-// put the adress of Data Foundry here
+// the server address of your Data Foundry instance
 const char* datafoundry = "data.id.tue.nl";
 
 // create connection to dataset with server address, dataset id, and the access token

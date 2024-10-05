@@ -388,7 +388,7 @@ void OOCSI::printMessage() {
 }
 
 bool OOCSI::getBool(const char* key, bool standard) {
-  if(jsonDocument.isNull() || !jsonDocument.containsKey(key)) {
+  if(jsonDocument.isNull() || !jsonDocument[key].is<bool>()) {
     return standard;
   } else {
     return jsonDocument[key].as<bool>();
@@ -396,7 +396,7 @@ bool OOCSI::getBool(const char* key, bool standard) {
 }
 
 int OOCSI::getInt(const char* key, int standard) {
-  if(jsonDocument.isNull() || !jsonDocument.containsKey(key)) {
+  if(jsonDocument.isNull() || !jsonDocument[key].is<int>()) {
     return standard;
   } else {
     return jsonDocument[key].as<int>();
@@ -404,7 +404,7 @@ int OOCSI::getInt(const char* key, int standard) {
 }
 
 long OOCSI::getLong(const char* key, long standard) {
-  if(jsonDocument.isNull() || !jsonDocument.containsKey(key)) {
+  if(jsonDocument.isNull() || !jsonDocument[key].is<long>()) {
     return standard;
   } else {
     return jsonDocument[key].as<long>();
@@ -412,7 +412,7 @@ long OOCSI::getLong(const char* key, long standard) {
 }
 
 unsigned long long OOCSI::getUnsignedLongLong(const char* key, long standard) {
-  if(jsonDocument.isNull() || !jsonDocument.containsKey(key)) {
+  if(jsonDocument.isNull() || !jsonDocument[key].is<unsigned long long>()) {
     return standard;
   } else {
     return jsonDocument[key].as<unsigned long long>();
@@ -420,7 +420,7 @@ unsigned long long OOCSI::getUnsignedLongLong(const char* key, long standard) {
 }
 
 float OOCSI::getFloat(const char* key, float standard) {
-  if(jsonDocument.isNull() || !jsonDocument.containsKey(key)) {
+  if(jsonDocument.isNull() || !jsonDocument[key].is<float>()) {
     return standard;
   } else {
     return jsonDocument[key].as<float>();
@@ -428,7 +428,7 @@ float OOCSI::getFloat(const char* key, float standard) {
 }
 
 String OOCSI::getString(const char* key, const char* standard) {
-  if(jsonDocument.isNull() || !jsonDocument.containsKey(key)) {
+  if(jsonDocument.isNull() || !jsonDocument[key].is<String>()) {
     return standard;
   } else {
     return jsonDocument[key].as<String>();
@@ -436,7 +436,7 @@ String OOCSI::getString(const char* key, const char* standard) {
 }
 
 void  OOCSI::getBoolArray(const char* key, bool* standard, bool* passArray, int arrayLength) {
-  if(jsonDocument.isNull() || !jsonDocument.containsKey(key)) {
+  if(jsonDocument.isNull() || !jsonDocument[key].is<JsonArray>()) {
     passArray = standard;
   } else {
     JsonArray array = jsonDocument[key].as<JsonArray>();
@@ -447,7 +447,7 @@ void  OOCSI::getBoolArray(const char* key, bool* standard, bool* passArray, int 
 }
 
 void  OOCSI::getIntArray(const char* key, int* standard, int* passArray, int arrayLength) {
-  if(jsonDocument.isNull() || !jsonDocument.containsKey(key)) {
+  if(jsonDocument.isNull() || !jsonDocument[key].is<JsonArray>()) {
     passArray = standard;
   } else {
     JsonArray array = jsonDocument[key].as<JsonArray>();
@@ -458,7 +458,7 @@ void  OOCSI::getIntArray(const char* key, int* standard, int* passArray, int arr
 }
 
 void  OOCSI::getLongArray(const char* key, long* standard, long* passArray, int arrayLength) {
-  if(jsonDocument.isNull() || !jsonDocument.containsKey(key)) {
+  if(jsonDocument.isNull() || !jsonDocument[key].is<JsonArray>()) {
     passArray = standard;
   } else {
     JsonArray array = jsonDocument[key].as<JsonArray>();
@@ -469,7 +469,7 @@ void  OOCSI::getLongArray(const char* key, long* standard, long* passArray, int 
 }
 
 void OOCSI::getFloatArray(const char* key, float* standard, float* passArray, int arrayLength) {
-  if(jsonDocument.isNull() || !jsonDocument.containsKey(key)) {
+  if(jsonDocument.isNull() || !jsonDocument[key].is<JsonArray>()) {
     passArray = standard;
   } else {
     JsonArray array = jsonDocument[key].as<JsonArray>();
@@ -480,7 +480,7 @@ void OOCSI::getFloatArray(const char* key, float* standard, float* passArray, in
 }
 
 void OOCSI::getStringArray(const char* key, String standard[], String passArray[], int arrayLength) {
-  if(jsonDocument.isNull() || !jsonDocument.containsKey(key)) {
+  if(jsonDocument.isNull() || !jsonDocument[key].is<JsonArray>()) {
     passArray = standard;
   } else {
     JsonArray array = jsonDocument[key].as<JsonArray>();
@@ -491,7 +491,7 @@ void OOCSI::getStringArray(const char* key, String standard[], String passArray[
 }
 
 JsonObject OOCSI::getJsonObject(const char* key) {
-  if(jsonDocument.isNull() || !jsonDocument.containsKey(key)) {
+  if(jsonDocument.isNull() || !jsonDocument[key].is<JsonObject>()) {
     DynamicJsonDocument doc(1);
     return doc.to<JsonObject>();
   } else {
@@ -500,7 +500,7 @@ JsonObject OOCSI::getJsonObject(const char* key) {
 }
 
 JsonArray OOCSI::getJsonArray(const char* key) {
-  if(jsonDocument.isNull() || !jsonDocument.containsKey(key)) {
+  if(jsonDocument.isNull() || !jsonDocument[key].is<JsonArray>()) {
     DynamicJsonDocument doc(1);
     return doc.to<JsonArray>();
   } else {
@@ -521,7 +521,7 @@ unsigned long long OOCSI::getTimeStamp() {
 }
 
 bool OOCSI::has(const char* key) {
-  return jsonDocument.containsKey(key);
+  return jsonDocument[key].is<bool>();
 }
 
 // function for outputting all (top-level) keys in the message as a comma-separated list

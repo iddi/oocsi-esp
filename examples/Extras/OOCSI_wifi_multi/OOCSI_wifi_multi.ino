@@ -48,3 +48,8 @@ void loop() {
   // let OOCSI check to process incoming data
   oocsi.check();
 }
+
+// function which OOCSI calls when an OOCSI message is received
+void processOOCSI() {
+  // ...
+}

@@ -372,7 +372,7 @@ bool DFDataset::getItem() {
 }
 
 bool DFDataset::getBool(const char* key, bool standard) {
-  if(jsonDocument.isNull() || !jsonDocument.containsKey(key)) {
+  if(jsonDocument.isNull() || !jsonDocument[key].is<bool>()) {
     return standard;
   } else {
     return jsonDocument[key].as<bool>();
@@ -380,7 +380,7 @@ bool DFDataset::getBool(const char* key, bool standard) {
 }
 
 int DFDataset::getInt(const char* key, int standard) {
-  if(jsonDocument.isNull() || !jsonDocument.containsKey(key)) {
+  if(jsonDocument.isNull() || !jsonDocument[key].is<int>()) {
     return standard;
   } else {
     return jsonDocument[key].as<int>();
@@ -388,7 +388,7 @@ int DFDataset::getInt(const char* key, int standard) {
 }
 
 long DFDataset::getLong(const char* key, long standard) {
-  if(jsonDocument.isNull() || !jsonDocument.containsKey(key)) {
+  if(jsonDocument.isNull() || !jsonDocument[key].is<long>()) {
     return standard;
   } else {
     return jsonDocument[key].as<long>();
@@ -396,7 +396,7 @@ long DFDataset::getLong(const char* key, long standard) {
 }
 
 float DFDataset::getFloat(const char* key, float standard) {
-  if(jsonDocument.isNull() || !jsonDocument.containsKey(key)) {
+  if(jsonDocument.isNull() || !jsonDocument[key].is<float>()) {
     return standard;
   } else {
     return jsonDocument[key].as<float>();
@@ -404,7 +404,7 @@ float DFDataset::getFloat(const char* key, float standard) {
 }
 
 String DFDataset::getString(const char* key, const char* standard) {
-  if(jsonDocument.isNull() || !jsonDocument.containsKey(key)) {
+  if(jsonDocument.isNull() || !jsonDocument[key].is<String>()) {
     return standard;
   } else {
     return jsonDocument[key].as<String>();
@@ -412,7 +412,7 @@ String DFDataset::getString(const char* key, const char* standard) {
 }
 
 bool DFDataset::has(const char* key) {
-  return jsonDocument.containsKey(key);
+  return jsonDocument[key].is<JsonVariant>();
 }
 
 // function for outputting all (top-level) keys in the message as a comma-separated list

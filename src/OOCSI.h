@@ -13,27 +13,15 @@
 
 #ifdef ESP32
     #include <WiFi.h>
-    #ifndef MSG_SIZE
-        #define MSG_SIZE 2048
-    #endif
 #endif
 #ifdef ESP8266
     #include <ESP8266WiFi.h>
-    #ifndef MSG_SIZE
-        #define MSG_SIZE 1024
-    #endif
 #endif
 #if defined(ARDUINO_SAMD_MKRWIFI1010) || defined(ARDUINO_AVR_UNO_WIFI_REV2) || defined(ARDUINO_SAMD_NANO_33_IOT) || defined(ARDUINO_NANO_RP2040_CONNECT)
     #include <WiFiNINA.h>
-    #ifndef MSG_SIZE
-        #define MSG_SIZE 1024
-    #endif
 #endif
 #ifdef ARDUINO_UNOWIFIR4
     #include <WiFiS3.h>
-    #ifndef MSG_SIZE
-        #define MSG_SIZE 1024
-    #endif
 #endif
 
 
@@ -132,8 +120,8 @@ class OOCSI {
     long prevTime;
 
     // messaging
-    StaticJsonDocument<MSG_SIZE> jsonDocument;
-    StaticJsonDocument<MSG_SIZE> jsonMessage;
+    JsonDocument jsonDocument;
+    JsonDocument jsonMessage;
     String jsonMessageReceiver;
     bool receivedMessage;
     int activityLEDPin;

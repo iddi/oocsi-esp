@@ -189,7 +189,7 @@ void OOCSIDevice::setValue(const char* componentName, float value) {
 }
 
 void OOCSIDevice::setValue(const char* componentName, const char* key, float value) {
-  if(channels.containsKey(componentName)) {
+  if(channels[componentName].is<String>()) {
     oocsi->newMessage(channels[componentName]);
     oocsi->addFloat(key, value);
     oocsi->addString("component", componentName);
@@ -202,7 +202,7 @@ void OOCSIDevice::setState(const char* componentName, bool state) {
 }
 
 void OOCSIDevice::setState(const char* componentName, const char* key, bool state) {
-  if(channels.containsKey(componentName)) {
+  if(channels[componentName].is<String>()) {
     oocsi->newMessage(channels[componentName]);
     oocsi->addBool(key, state);
     oocsi->addString("component", componentName);
