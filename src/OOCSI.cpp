@@ -492,7 +492,7 @@ void OOCSI::getStringArray(const char* key, String standard[], String passArray[
 
 JsonObject OOCSI::getJsonObject(const char* key) {
   if(jsonDocument.isNull() || !jsonDocument[key].is<JsonObject>()) {
-    DynamicJsonDocument doc(1);
+    JsonDocument doc;
     return doc.to<JsonObject>();
   } else {
     return jsonDocument[key].as<JsonObject>();
@@ -501,7 +501,7 @@ JsonObject OOCSI::getJsonObject(const char* key) {
 
 JsonArray OOCSI::getJsonArray(const char* key) {
   if(jsonDocument.isNull() || !jsonDocument[key].is<JsonArray>()) {
-    DynamicJsonDocument doc(1);
+    JsonDocument doc;
     return doc.to<JsonArray>();
   } else {
     return jsonDocument[key].as<JsonArray>();
@@ -520,8 +520,9 @@ unsigned long long OOCSI::getTimeStamp() {
   return getUnsignedLongLong("timestamp", 1LL);
 }
 
+// can only justify the data value of boolean type 
 bool OOCSI::has(const char* key) {
-  return jsonDocument[key].is<bool>();
+  return jsonDocument[key].is<JsonVariant>();
 }
 
 // function for outputting all (top-level) keys in the message as a comma-separated list
@@ -579,7 +580,7 @@ OOCSI OOCSI::addString(const char* key, const char* value) {
 
 // function for sending an array of bool values
 OOCSI OOCSI::addBoolArray(const char* key, bool* value, int len) {
-  JsonArray array = jsonMessage.createNestedArray(key);
+  JsonArray array = jsonMessage[key].to<JsonArray>();
   for(int i = 0; i < len; i++) {
     array.add(value[i]);
   }
@@ -588,7 +589,7 @@ OOCSI OOCSI::addBoolArray(const char* key, bool* value, int len) {
 
 // function for sending an array of int values
 OOCSI OOCSI::addIntArray(const char* key, int* value, int len) {
-  JsonArray array = jsonMessage.createNestedArray(key);
+  JsonArray array = jsonMessage[key].to<JsonArray>();
   for(int i = 0; i < len; i++) {
     array.add(value[i]);
   }
@@ -597,7 +598,7 @@ OOCSI OOCSI::addIntArray(const char* key, int* value, int len) {
 
 // function for sending an array of long values
 OOCSI OOCSI::addLongArray(const char* key, long* value, int len) {
-  JsonArray array = jsonMessage.createNestedArray(key);
+  JsonArray array = jsonMessage[key].to<JsonArray>();
   for(int i = 0; i < len; i++) {
     array.add(value[i]);
   }
@@ -606,7 +607,7 @@ OOCSI OOCSI::addLongArray(const char* key, long* value, int len) {
 
 // function for sending an array of float values
 OOCSI OOCSI::addFloatArray(const char* key, float* value, int len) {
-  JsonArray array = jsonMessage.createNestedArray(key);
+  JsonArray array = jsonMessage[key].to<JsonArray>();
   for(int i = 0; i < len; i++) {
     array.add(value[i]);
   }
@@ -615,7 +616,7 @@ OOCSI OOCSI::addFloatArray(const char* key, float* value, int len) {
 
 // function for sending an array of Strings
 OOCSI OOCSI::addStringArray(const char* key, String value[], int len) {
-  JsonArray array = jsonMessage.createNestedArray(key);
+  JsonArray array = jsonMessage[key].to<JsonArray>();
   for(int i = 0; i < len; i++) {
     array.add(value[i]);
   }
@@ -625,7 +626,7 @@ OOCSI OOCSI::addStringArray(const char* key, String value[], int len) {
 // function for adding a nested Json object to the message
 // returns the new object which can then be filled with data
 JsonObject OOCSI::addJsonObject(const char* key) {
-  JsonObject object = jsonMessage.createNestedObject(key);
+  JsonObject object = jsonMessage[key].add<JsonObject>();
   return object;
 }
 
@@ -636,7 +637,7 @@ void OOCSI::setJsonObject(const char* key, JsonObject obj) {
 // function for adding a nested Json array to the message,
 // returns the new array which can then be filled with data
 JsonArray OOCSI::addJsonArray(const char* key) {
-  JsonArray array = jsonMessage.createNestedArray(key);
+  JsonArray array = jsonMessage[key].add<JsonArray>();
   return array;
 }
 
