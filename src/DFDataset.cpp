@@ -110,7 +110,7 @@ bool DFDataset::logItem() {
 
   //http.end();
 
-  return httpCode == 200;
+  return httpCode == HTTP_CODE_OK;
 #else
   // compile address
   snprintf_P(address, sizeof(address), PSTR("http://%s/datasets/ts/log/%i/%s"), host, dataset_id, activity_id_url);
@@ -167,7 +167,7 @@ bool DFDataset::addItem() {
 
   //http.end();
 
-  return httpCode == 200;
+  return httpCode == HTTP_CODE_OK;
 #else
   // compile address
   snprintf_P(address, sizeof(address), PSTR("http://%s/datasets/entity/%i/item/"), host, dataset_id);
@@ -224,7 +224,7 @@ bool DFDataset::updateItem() {
 
   //http.end();
 
-  return httpCode == 200;
+  return httpCode == HTTP_CODE_OK;
 #else
   // compile address
   snprintf_P(address, sizeof(address), PSTR("http://%s/datasets/entity/%i/item/"), host, dataset_id);
@@ -276,7 +276,7 @@ bool DFDataset::deleteItem() {
 
   //http.end();
 
-  return httpCode == 200;
+  return httpCode == HTTP_CODE_OK;
 #else
   // compile address
   snprintf_P(address, sizeof(address), PSTR("http://%s/datasets/entity/%i/item/"), host, dataset_id);
@@ -350,7 +350,6 @@ bool DFDataset::getItem() {
   http.addHeader("token", resource_token);
   http.addHeader("api_token", api_token);
 
-  int httpCode = http.GET();
   jsonMessage.clear();
 
   String jsonResponse = http.getString();
