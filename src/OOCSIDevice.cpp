@@ -15,12 +15,9 @@ OOCSIDevice::OOCSIDevice(const char* name, OOCSI &client) {
   oocsi = &client;
   prototypeName = name;
 
-  device = docDevices.to<JsonObject>();
-  properties = device.createNestedObject("properties");
-  components = device.createNestedObject("components");
-  location = device.createNestedObject("location");
-
-  channels = docChannels.to<JsonObject>();
+  properties = device["properties"].to<JsonObject>();
+  components = device["components"].to<JsonObject>();
+  location = device["location"].to<JsonObject>();
 }
 
 // add device properties
@@ -36,7 +33,7 @@ void OOCSIDevice::addLocation(const char* locationName, int latitude, int longit
 
 // sensor configuration
 void OOCSIDevice::addSensor(const char* sensorName, const char* sensorChannel, const char* sensorType, int sensorDefaultValue, const char* sensorUnit, const char* icon) {
-  JsonObject sensor = components.createNestedObject(sensorName);
+  JsonObject sensor = components[sensorName].to<JsonObject>();
   sensor["channel_name"] = sensorChannel;
   sensor["type"] = "sensor";
   sensor["value"] = sensorDefaultValue;
@@ -48,7 +45,7 @@ void OOCSIDevice::addSensor(const char* sensorName, const char* sensorChannel, c
 
 // number input configuration
 void OOCSIDevice::addNumber(const char* numberName, const char* numberChannel, float numberMin, float numberMax, float numberDefaultValue, const char* numberUnit, const char* icon) {
-  JsonObject number = components.createNestedObject(numberName);
+  JsonObject number = components[numberName].to<JsonObject>();
   number["channel_name"] = numberChannel;
   number["type"] = "number";
   number["max"] = numberMax;
@@ -62,7 +59,7 @@ void OOCSIDevice::addNumber(const char* numberName, const char* numberChannel, f
 
 // number input configuration
 void OOCSIDevice::addNumber(const char* numberName, const char* numberChannel, float numberDefaultValue, const char* numberUnit, const char* icon) {
-  JsonObject number = components.createNestedObject(numberName);
+  JsonObject number = components[numberName].to<JsonObject>();
   number["channel_name"] = numberChannel;
   number["type"] = "number";
   number["value"] = numberDefaultValue;
@@ -74,7 +71,7 @@ void OOCSIDevice::addNumber(const char* numberName, const char* numberChannel, f
 
 // binary sensor configuration
 void OOCSIDevice::addBinarySensor(const char* sensorName, const char* sensorChannel, const char* sensorType, bool sensorDefaultState, const char* icon) {
-  JsonObject sensor = components.createNestedObject(sensorName);
+  JsonObject sensor = components[sensorName].to<JsonObject>();
   sensor["channel_name"] = sensorChannel;
   sensor["type"] = "binary_sensor";
   sensor["state"] = sensorDefaultState;
@@ -85,7 +82,7 @@ void OOCSIDevice::addBinarySensor(const char* sensorName, const char* sensorChan
 
 // switch configuration
 void OOCSIDevice::addSwitch(const char* switchName, const char* switchChannel, bool switchDefaultState, const char* icon) {
-  JsonObject switchConfig = components.createNestedObject(switchName);
+  JsonObject switchConfig = components[switchName].to<JsonObject>();
   switchConfig["channel_name"] = switchChannel;
   switchConfig["type"] = "switch";
   switchConfig["state"] = switchDefaultState;
@@ -95,35 +92,36 @@ void OOCSIDevice::addSwitch(const char* switchName, const char* switchChannel, b
 
 // light configuration
 void OOCSIDevice::addLight(const char* lightName, const char* lightChannel, const char* ledType, int spectrum, bool lightDefaultState, int defaultBrightness, const char* icon) {
-  JsonObject light = components.createNestedObject(lightName);
+  JsonObject light = components[lightName].to<JsonObject>();
   light["channel_name"] = lightChannel;
   light["type"] = "light";
   light["state"] = lightDefaultState;
   light["ledType"] = ledType;
   light["brightness"] = defaultBrightness;
-  light["icon"] = icon; 
-  JsonArray spectrums = light.createNestedArray("spectrum");
+  light["icon"] = icon;
+
+  JsonArray spectrums = light["spectrum"].to<JsonArray>();
   switch(spectrum) {
-  	case 1:
-  	case 4:
-  	case 6:
-  	case 7:
+    case 1:
+    case 4:
+    case 6:
+    case 7:
       spectrums.add("RGB");
       break;
   }
   switch(spectrum) {
-  	case 2:
-  	case 4:
-  	case 5:
-  	case 7:
+    case 2:
+    case 4:
+    case 5:
+    case 7:
       spectrums.add("CCT");
       break;
   }
   switch(spectrum) {
-  	case 3:
-  	case 5:
-  	case 6:
-  	case 7:
+    case 3:
+    case 5:
+    case 6:
+    case 7:
       spectrums.add("WHITE");
       break;
   }
@@ -132,35 +130,36 @@ void OOCSIDevice::addLight(const char* lightName, const char* lightChannel, cons
 
 // light configuration incase of CCT lights
 void OOCSIDevice::addLight(const char* lightName, const char* lightChannel, const char* ledType, int spectrum, bool lightDefaultState,  int defaultBrightness, int miredMax, int miredMin, const char* icon) {
-  JsonObject light = components.createNestedObject(lightName);
+  JsonObject light = components[lightName].to<JsonObject>();
   light["channel_name"] = lightChannel;
   light["type"] = "light";
   light["state"] = lightDefaultState;
   light["ledType"] = ledType;
   light["brightness"] = defaultBrightness;
   light["icon"] = icon; 
-  JsonArray spectrums = light.createNestedArray("spectrum");
+
+  JsonArray spectrums = light["spectrum"].to<JsonArray>();
   switch(spectrum) {
-  	case 1:
-  	case 4:
-  	case 6:
-  	case 7:
+    case 1:
+    case 4:
+    case 6:
+    case 7:
       spectrums.add("RGB");
       break;
   }
   switch(spectrum) {
-  	case 2:
-  	case 4:
-  	case 5:
-  	case 7:
+    case 2:
+    case 4:
+    case 5:
+    case 7:
       spectrums.add("CCT");
       break;
   }
   switch(spectrum) {
-  	case 3:
-  	case 5:
-  	case 6:
-  	case 7:
+    case 3:
+    case 5:
+    case 6:
+    case 7:
       spectrums.add("WHITE");
       break;
   }
