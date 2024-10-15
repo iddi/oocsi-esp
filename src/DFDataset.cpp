@@ -110,7 +110,7 @@ bool DFDataset::logItem() {
 
   //http.end();
 
-  return httpCode == HTTP_CODE_OK;
+  return httpCode == 200;
 #else
   // compile address
   snprintf_P(address, sizeof(address), PSTR("http://%s/datasets/ts/log/%i/%s"), host, dataset_id, activity_id_url);
@@ -127,7 +127,7 @@ bool DFDataset::logItem() {
 
   http.end();
 
-  return httpCode == HTTP_CODE_OK;
+  return httpCode == 200;
 #endif
 }
 
@@ -167,7 +167,7 @@ bool DFDataset::addItem() {
 
   //http.end();
 
-  return httpCode == HTTP_CODE_OK;
+  return httpCode == 200;
 #else
   // compile address
   snprintf_P(address, sizeof(address), PSTR("http://%s/datasets/entity/%i/item/"), host, dataset_id);
@@ -184,7 +184,7 @@ bool DFDataset::addItem() {
 
   http.end();
 
-  return httpCode == HTTP_CODE_OK;
+  return httpCode == 200;
 #endif
 }
 
@@ -224,7 +224,7 @@ bool DFDataset::updateItem() {
 
   //http.end();
 
-  return httpCode == HTTP_CODE_OK;
+  return httpCode == 200;
 #else
   // compile address
   snprintf_P(address, sizeof(address), PSTR("http://%s/datasets/entity/%i/item/"), host, dataset_id);
@@ -241,7 +241,7 @@ bool DFDataset::updateItem() {
 
   http.end();
 
-  return httpCode == HTTP_CODE_OK;
+  return httpCode == 200;
 #endif
 }
 
@@ -276,7 +276,7 @@ bool DFDataset::deleteItem() {
 
   //http.end();
 
-  return httpCode == HTTP_CODE_OK;
+  return httpCode == 200;
 #else
   // compile address
   snprintf_P(address, sizeof(address), PSTR("http://%s/datasets/entity/%i/item/"), host, dataset_id);
@@ -295,7 +295,7 @@ bool DFDataset::deleteItem() {
 
   http.end();
 
-  return httpCode == HTTP_CODE_OK;
+  return httpCode == 200;
 #endif
 }
 
