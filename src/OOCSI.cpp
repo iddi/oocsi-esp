@@ -626,7 +626,7 @@ OOCSI OOCSI::addStringArray(const char* key, String value[], int len) {
 // function for adding a nested Json object to the message
 // returns the new object which can then be filled with data
 JsonObject OOCSI::addJsonObject(const char* key) {
-  JsonObject object = jsonMessage[key].add<JsonObject>();
+  JsonObject object = jsonMessage[key].to<JsonObject>();
   return object;
 }
 
@@ -637,7 +637,7 @@ void OOCSI::setJsonObject(const char* key, JsonObject obj) {
 // function for adding a nested Json array to the message,
 // returns the new array which can then be filled with data
 JsonArray OOCSI::addJsonArray(const char* key) {
-  JsonArray array = jsonMessage[key].add<JsonArray>();
+  JsonArray array = jsonMessage[key].to<JsonArray>();
   return array;
 }
 
