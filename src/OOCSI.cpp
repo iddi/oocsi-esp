@@ -235,6 +235,9 @@ bool OOCSI::internalConnect() {
       return false;
     }
   } else {
+    println();
+    print("OOCSI connected. Current version: ");
+    println(OOCSI_VERSION);
     // print("[x] ");
     // continue with client-server handshake
     for(int i = 0; i < strlen(OOCSIName); i++) {
@@ -714,6 +717,11 @@ bool OOCSI::containsClient(const char* clientName) {
 // return the client name
 String OOCSI::getName() {
   return OOCSIName;
+}
+
+// return current version
+String OOCSI::getVersion() {
+  return OOCSI_VERSION;
 }
 
 // print message if logging is activated
