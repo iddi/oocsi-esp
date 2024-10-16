@@ -11,6 +11,8 @@
 #ifndef OOCSI_h
 #define OOCSI_h
 
+#define OOCSI_VERSION "1.5.16"
+
 #ifdef ESP32
     #include <WiFi.h>
 #endif
@@ -103,6 +105,7 @@ class OOCSI {
     String getChannels();
     bool containsClient(const char* clientName);
     String getName();
+    String getVersion();
 
 
   private:

@@ -127,7 +127,7 @@ bool DFDataset::logItem() {
 
   http.end();
 
-  return httpCode == HTTP_CODE_OK;
+  return httpCode == 200;
 #endif
 }
 
@@ -184,7 +184,7 @@ bool DFDataset::addItem() {
 
   http.end();
 
-  return httpCode == HTTP_CODE_OK;
+  return httpCode == 200;
 #endif
 }
 
@@ -241,7 +241,7 @@ bool DFDataset::updateItem() {
 
   http.end();
 
-  return httpCode == HTTP_CODE_OK;
+  return httpCode == 200;
 #endif
 }
 
@@ -295,7 +295,7 @@ bool DFDataset::deleteItem() {
 
   http.end();
 
-  return httpCode == HTTP_CODE_OK;
+  return httpCode == 200;
 #endif
 }
 
@@ -350,7 +350,6 @@ bool DFDataset::getItem() {
   http.addHeader("token", resource_token);
   http.addHeader("api_token", api_token);
 
-  int httpCode = http.GET();
   jsonMessage.clear();
 
   String jsonResponse = http.getString();
