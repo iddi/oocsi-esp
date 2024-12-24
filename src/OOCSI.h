@@ -11,7 +11,7 @@
 #ifndef OOCSI_h
 #define OOCSI_h
 
-#define OOCSI_VERSION "1.5.17"
+#define OOCSI_VERSION "1.5.18"
 
 #ifdef ESP32
     #include <WiFi.h>

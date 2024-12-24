@@ -293,9 +293,8 @@ bool OOCSI::check() {
   String message;
   while (client.available() && messageCount++ < 20) {
     message = client.readStringUntil('\n');
-    if (message.indexOf("ping") >= 0 || message == " " ) {
+    if (message == "ping" || message == " " ) {
       // it's a heart beat, send one back
-      println(F("ping;"));
       client.println('.');
       prevTime = millis();
     } else if (message.length() > 0) {
