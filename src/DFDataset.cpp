@@ -113,11 +113,20 @@ bool DFDataset::logItem() {
   return httpCode == 200;
 #else
   // compile address
-  snprintf_P(address, sizeof(address), PSTR("http://%s/datasets/ts/log/%i/%s"), host, dataset_id, activity_id_url);
-
+  snprintf_P(address, sizeof(address), PSTR("https://%s/datasets/ts/log/%i/%s"), host, dataset_id, activity_id_url);
   HTTPClient http;
-  http.begin(wifi, address/*, root_ca_df*/);
-  http.addHeader("Content-Type", F("application/json"));
+
+#ifdef ESP8266
+  std::unique_ptr<BearSSL::WiFiClientSecure> client(new BearSSL::WiFiClientSecure);
+  client->setInsecure();
+  http.begin(*client, address);
+#else
+  http.begin(address); // API URL
+  // http.begin(wifi, address/*, root_ca_df*/);
+#endif
+
+  // set headers
+  http.addHeader("Content-Type", "application/json");
   http.addHeader("api_token", api_token);
   http.addHeader("source_id", device_id);
   http.addHeader("device_id", device_id);
