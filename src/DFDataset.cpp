@@ -5,6 +5,14 @@
  * Foundry platform.
  *
  * Developed by Mathias Funk
+ * 
+ * Last updated @May 27, 2025 by Eden Chiang 
+ * New support models: Arduino Nano ESP32, and Arduino Uno R4 WiFi
+ * 
+ * Known issue: 
+ * ESP8266 is only available for logging data to IoT dataset via logItem(), 
+ * other access to Entity dataset, such as addItem(), editItem(), 
+ * deleteItem(), and getItem() will get error message from Data Foundry
  **************************************************************************/
 
 #include "DFDataset.h"
@@ -93,14 +101,14 @@ bool DFDataset::logItem() {
   // compile address
   snprintf_P(address, sizeof(address), PSTR("/datasets/ts/log/%i/%s"), dataset_id, activity_id_url);
 
-  HttpClient http = HttpClient(wifi, host, 80);  
+  HttpClient http = HttpClient(wifi, host, https_port);  
   http.beginRequest();
   http.post(address);
-  http.sendHeader("Content-Type", F("application/json"));
-  http.sendHeader("Content-Length", postMessage.length());
+  http.sendHeader("Content-Type: application/json");
   http.sendHeader("api_token", api_token);
   http.sendHeader("source_id", device_id);
   http.sendHeader("device_id", device_id);
+  http.sendHeader("Content-Length", postMessage.length());
   http.beginBody();
   http.print(postMessage);
   http.endRequest();
@@ -108,29 +116,25 @@ bool DFDataset::logItem() {
   int httpCode = http.responseStatusCode();
   jsonMessage.clear();
 
-  //http.end();
-
   return httpCode == 200;
 #else
   // compile address
   snprintf_P(address, sizeof(address), PSTR("https://%s/datasets/ts/log/%i/%s"), host, dataset_id, activity_id_url);
   HTTPClient http;
 
-#ifdef ESP8266
+  #ifdef ESP8266
   std::unique_ptr<BearSSL::WiFiClientSecure> client(new BearSSL::WiFiClientSecure);
   client->setInsecure();
   http.begin(*client, address);
-#else
-  http.begin(address); // API URL
   // http.begin(wifi, address/*, root_ca_df*/);
-#endif
+  #else
+  http.begin(address);
+  #endif
 
-  // set headers
-  http.addHeader("Content-Type", "application/json");
+  http.addHeader("Content-Type", F("application/json"));
   http.addHeader("api_token", api_token);
   http.addHeader("source_id", device_id);
   http.addHeader("device_id", device_id);
-
   int httpCode = http.POST(postMessage);
   jsonMessage.clear();
 
@@ -150,6 +154,9 @@ bool DFDataset::addItem() {
   // check message
   String postMessage = String();
   serializeJson(jsonMessage, postMessage);
+  if(postMessage == NULL || postMessage == "null") {
+    return false;
+  }
 
   // set missing data
   resource_token = resource_token != NULL ? resource_token : "";
@@ -159,14 +166,14 @@ bool DFDataset::addItem() {
   // compile address
   snprintf_P(address, sizeof(address), PSTR("/datasets/entity/%i/item/"), dataset_id);
 
-  HttpClient http = HttpClient(wifi, host, 80);  
+  HttpClient http = HttpClient(wifi, host, https_port);  
   http.beginRequest();
   http.post(address);
-  http.sendHeader("Content-Type", F("application/json"));
-  http.sendHeader("Content-Length", postMessage.length());
-  http.sendHeader("resource_id", resource_id);
-  http.sendHeader("token", resource_token);
+  http.sendHeader("Content-Type: application/json");
   http.sendHeader("api_token", api_token);
+  http.sendHeader("token", resource_token);
+  http.sendHeader("resource_id", resource_id);
+  http.sendHeader("Content-Length", postMessage.length());
   http.beginBody();
   http.print(postMessage);
   http.endRequest();
@@ -174,19 +181,27 @@ bool DFDataset::addItem() {
   int httpCode = http.responseStatusCode();
   jsonMessage.clear();
 
-  //http.end();
-
   return httpCode == 200;
 #else
   // compile address
-  snprintf_P(address, sizeof(address), PSTR("http://%s/datasets/entity/%i/item/"), host, dataset_id);
+  snprintf_P(address, sizeof(address), PSTR("https://%s/datasets/entity/%i/item/"), host, dataset_id);
 
   HTTPClient http;
-  http.begin(wifi, address/*, root_ca_df*/);
+
+  #ifdef ESP8266
+  std::unique_ptr<BearSSL::WiFiClientSecure> client(new BearSSL::WiFiClientSecure);
+  client->setInsecure();
+  http.begin(*client, address);
+  // http.begin(wifi, address/*, root_ca_df*/);
+  #else
+  http.begin(address);
+  #endif
+
   http.addHeader("Content-Type", F("application/json"));
-  http.addHeader("resource_id", resource_id);
-  http.addHeader("token", resource_token);
   http.addHeader("api_token", api_token);
+  http.addHeader("token", resource_token);
+  http.addHeader("resource_id", resource_id);
+  http.addHeader("Content-Length", String(postMessage.length()));
 
   int httpCode = http.POST(postMessage);
   jsonMessage.clear();
@@ -207,6 +222,9 @@ bool DFDataset::updateItem() {
   // check message
   String postMessage = String();
   serializeJson(jsonMessage, postMessage);
+  if(postMessage == NULL || postMessage == "null") {
+    return false;
+  }
 
   // set missing data
   resource_token = resource_token != NULL ? resource_token : "";
@@ -216,7 +234,7 @@ bool DFDataset::updateItem() {
   // compile address
   snprintf_P(address, sizeof(address), PSTR("/datasets/entity/%i/item/"), dataset_id);
 
-  HttpClient http = HttpClient(wifi, host, 80);  
+  HttpClient http = HttpClient(wifi, host, https_port);  
   http.beginRequest();
   http.put(address);
   http.sendHeader("Content-Type", F("application/json"));
@@ -231,19 +249,26 @@ bool DFDataset::updateItem() {
   int httpCode = http.responseStatusCode();
   jsonMessage.clear();
 
-  //http.end();
-
   return httpCode == 200;
 #else
   // compile address
-  snprintf_P(address, sizeof(address), PSTR("http://%s/datasets/entity/%i/item/"), host, dataset_id);
+  snprintf_P(address, sizeof(address), PSTR("https://%s/datasets/entity/%i/item/"), host, dataset_id);
 
   HTTPClient http;
-  http.begin(wifi, address/*, root_ca_df*/);
-  http.addHeader("Content-Type", "application/json");
-  http.addHeader("resource_id", resource_id);
-  http.addHeader("token", resource_token);
+
+  #ifdef ESP8266
+  std::unique_ptr<BearSSL::WiFiClientSecure> client(new BearSSL::WiFiClientSecure);
+  client->setInsecure();
+  http.begin(*client, address);
+  // http.begin(wifi, address/*, root_ca_df*/);
+  #else
+  http.begin(address);
+  #endif
+
+  http.addHeader("Content-Type", F("application/json"));
   http.addHeader("api_token", api_token);
+  http.addHeader("token", resource_token);
+  http.addHeader("resource_id", resource_id);
 
   int httpCode = http.PUT(postMessage);
   jsonMessage.clear();
@@ -269,7 +294,7 @@ bool DFDataset::deleteItem() {
   // compile address
   snprintf_P(address, sizeof(address), PSTR("/datasets/entity/%i/item/"), dataset_id);
 
-  HttpClient http = HttpClient(wifi, host, 80);  
+  HttpClient http = HttpClient(wifi, host, https_port);  
   http.beginRequest();
   http.del(address);
   http.sendHeader("Content-Type", F("application/json"));
@@ -283,19 +308,26 @@ bool DFDataset::deleteItem() {
   int httpCode = http.responseStatusCode();
   jsonMessage.clear();
 
-  //http.end();
-
   return httpCode == 200;
 #else
   // compile address
-  snprintf_P(address, sizeof(address), PSTR("http://%s/datasets/entity/%i/item/"), host, dataset_id);
+  snprintf_P(address, sizeof(address), PSTR("https://%s/datasets/entity/%i/item/"), host, dataset_id);
   
   HTTPClient http;
-  http.begin(wifi, address/*, root_ca_df*/);
+
+  #ifdef ESP8266
+  std::unique_ptr<BearSSL::WiFiClientSecure> client(new BearSSL::WiFiClientSecure);
+  client->setInsecure();
+  http.begin(*client, address);
+  // http.begin(wifi, address/*, root_ca_df*/);
+  #else
+  http.begin(address);
+  #endif
+
   http.addHeader("Content-Type", F("application/json"));
-  http.addHeader("resource_id", resource_id);
-  http.addHeader("token", resource_token);
   http.addHeader("api_token", api_token);
+  http.addHeader("token", resource_token);
+  http.addHeader("resource_id", resource_id);
   
   int httpCode = http.sendRequest("DELETE");
   jsonMessage.clear();
@@ -322,7 +354,7 @@ bool DFDataset::getItem() {
   // compile address
   snprintf_P(address, sizeof(address), PSTR("/datasets/entity/%i/item/"), dataset_id);
 
-  HttpClient http = HttpClient(wifi, host, 80);  
+  HttpClient http = HttpClient(wifi, host, https_port);  
   http.beginRequest();
   http.get(address);
   http.sendHeader("Content-Type", F("application/json"));
@@ -333,10 +365,9 @@ bool DFDataset::getItem() {
   http.print("");
   http.endRequest();
   
-  /*int httpCode = */http.responseStatusCode();
+  // int httpCode = http.responseStatusCode();
   String jsonResponse = http.responseBody();
 
-  //http.end();
   if(jsonResponse.length() > 0) {
     DeserializationError error = deserializeJson(jsonDocument, jsonResponse.c_str());
     if (error) {
@@ -350,15 +381,25 @@ bool DFDataset::getItem() {
   }
 #else
   // compile address
-  snprintf_P(address, sizeof(address), PSTR("http://%s/datasets/entity/%i/item/"), host, dataset_id);
+  snprintf_P(address, sizeof(address), PSTR("https://%s/datasets/entity/%i/item/"), host, dataset_id);
 
   HTTPClient http;
-  http.begin(wifi, address/*, root_ca_df*/);
-  http.addHeader("Content-Type", F("application/json"));
-  http.addHeader("resource_id", resource_id);
-  http.addHeader("token", resource_token);
-  http.addHeader("api_token", api_token);
 
+  #ifdef ESP8266
+  std::unique_ptr<BearSSL::WiFiClientSecure> client(new BearSSL::WiFiClientSecure);
+  client->setInsecure();
+  http.begin(*client, address);
+  // http.begin(wifi, address/*, root_ca_df*/);
+  #else
+  http.begin(address);
+  #endif
+
+  http.addHeader("Content-Type", F("application/json"));
+  http.addHeader("api_token", api_token);
+  http.addHeader("token", resource_token);
+  http.addHeader("resource_id", resource_id);
+
+  int httpCode = http.sendRequest("GET");
   jsonMessage.clear();
 
   String jsonResponse = http.getString();

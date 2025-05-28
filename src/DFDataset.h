@@ -5,12 +5,20 @@
  * Foundry platform.
  *
  * Developed by Mathias Funk
+ * 
+ * Last updated @May 27, 2025 by Eden Chiang 
+ * New support models: Arduino Nano ESP32, and Arduino Uno R4 WiFi
+ * 
+ * Known issue: 
+ * ESP8266 is only available for logging data to IoT dataset via logItem(), 
+ * other access to Entity dataset, such as addItem(), editItem(), 
+ * deleteItem(), and getItem() will get error message from Data Foundry
  **************************************************************************/
 
 #ifndef DFDATASET_h
 #define DFDATASET_h
 
-#ifdef ESP32
+#if defined(ESP32) || defined(NANO_ESP32)
     #include <WiFi.h>
     #include <HTTPClient.h>
 #endif
