@@ -119,10 +119,8 @@ bool DFDataset::logItem() {
   HTTPClient http;
 
   #ifdef ESP8266
-  std::unique_ptr<BearSSL::WiFiClientSecure> client(new BearSSL::WiFiClientSecure);
-  client->setInsecure();
-  http.begin(*client, address);
-  // http.begin(wifi, address/*, root_ca_df*/);
+  http.begin(wifi, address/*, root_ca_df*/);
+  https.setAuthorization(root_ca_df);
   #else
   http.begin(address);
   #endif
@@ -185,9 +183,8 @@ bool DFDataset::addItem() {
   HTTPClient http;
 
   #ifdef ESP8266
-  std::unique_ptr<BearSSL::WiFiClientSecure> client(new BearSSL::WiFiClientSecure);
-  client->setInsecure();
-  http.begin(*client, address);
+  http.begin(wifi, address/*, root_ca_df*/);
+  https.setAuthorization(root_ca_df);
   #else
   http.begin(address);
   #endif
@@ -251,9 +248,8 @@ bool DFDataset::updateItem() {
   HTTPClient http;
 
   #ifdef ESP8266
-  std::unique_ptr<BearSSL::WiFiClientSecure> client(new BearSSL::WiFiClientSecure);
-  client->setInsecure();
-  http.begin(*client, address);
+  http.begin(wifi, address/*, root_ca_df*/);
+  https.setAuthorization(root_ca_df);
   #else
   http.begin(address);
   #endif
@@ -309,9 +305,8 @@ bool DFDataset::deleteItem() {
   HTTPClient http;
 
   #ifdef ESP8266
-  std::unique_ptr<BearSSL::WiFiClientSecure> client(new BearSSL::WiFiClientSecure);
-  client->setInsecure();
-  http.begin(*client, address);
+  http.begin(wifi, address/*, root_ca_df*/);
+  https.setAuthorization(root_ca_df);
   #else
   http.begin(address);
   #endif
@@ -378,9 +373,8 @@ bool DFDataset::getItem() {
   HTTPClient http;
 
   #ifdef ESP8266
-  std::unique_ptr<BearSSL::WiFiClientSecure> client(new BearSSL::WiFiClientSecure);
-  client->setInsecure();
-  http.begin(*client, address);
+  http.begin(wifi, address/*, root_ca_df*/);
+  https.setAuthorization(root_ca_df);
   #else
   http.begin(address);
   #endif
