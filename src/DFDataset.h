@@ -5,12 +5,15 @@
  * Foundry platform.
  *
  * Developed by Mathias Funk
+ * 
+ * Last updated @Jun. 4th, 2025 by Eden Chiang 
+ * New support models: Arduino Nano ESP32, and Arduino Uno R4 WiFi
  **************************************************************************/
 
 #ifndef DFDATASET_h
 #define DFDATASET_h
 
-#ifdef ESP32
+#if defined(ESP32) || defined(NANO_ESP32)
     #include <WiFi.h>
     #include <HTTPClient.h>
 #endif
