@@ -120,7 +120,7 @@ bool DFDataset::logItem() {
 
   #ifdef ESP8266
   http.begin(wifi, address/*, root_ca_df*/);
-  https.setAuthorization(root_ca_df);
+  http.setAuthorization(root_ca_df);
   #else
   http.begin(address);
   #endif
@@ -184,7 +184,7 @@ bool DFDataset::addItem() {
 
   #ifdef ESP8266
   http.begin(wifi, address/*, root_ca_df*/);
-  https.setAuthorization(root_ca_df);
+  http.setAuthorization(root_ca_df);
   #else
   http.begin(address);
   #endif
@@ -249,7 +249,7 @@ bool DFDataset::updateItem() {
 
   #ifdef ESP8266
   http.begin(wifi, address/*, root_ca_df*/);
-  https.setAuthorization(root_ca_df);
+  http.setAuthorization(root_ca_df);
   #else
   http.begin(address);
   #endif
@@ -306,7 +306,7 @@ bool DFDataset::deleteItem() {
 
   #ifdef ESP8266
   http.begin(wifi, address/*, root_ca_df*/);
-  https.setAuthorization(root_ca_df);
+  http.setAuthorization(root_ca_df);
   #else
   http.begin(address);
   #endif
@@ -374,7 +374,7 @@ bool DFDataset::getItem() {
 
   #ifdef ESP8266
   http.begin(wifi, address/*, root_ca_df*/);
-  https.setAuthorization(root_ca_df);
+  http.setAuthorization(root_ca_df);
   #else
   http.begin(address);
   #endif
