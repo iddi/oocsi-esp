@@ -242,11 +242,15 @@ bool OOCSI::internalConnect() {
     // continue with client-server handshake
     for(int i = 0; i < strlen(OOCSIName); i++) {
       if(OOCSIName[i] == '#') {
-        client.print(random(0, 10));
+        int rand=random(0, 10);
+        client.print(rand);
+        name_buffer[i] = '0'+rand;
       } else {
         client.print(OOCSIName[i]);
+        name_buffer[i] = OOCSIName[i];
       }
     }
+    name_buffer[strlen(OOCSIName)] = '\0'; //terminate with null character
     
     client.println(F("(JSON)"));
 
@@ -715,7 +719,8 @@ bool OOCSI::containsClient(const char* clientName) {
 
 // return the client name
 String OOCSI::getName() {
-  return OOCSIName;
+  const char* currentOOCSIName = (const char*)name_buffer;
+  return currentOOCSIName;
 }
 
 // return current version

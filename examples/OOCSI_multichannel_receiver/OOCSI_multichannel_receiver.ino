@@ -72,7 +72,7 @@ void processOOCSI() {
     Serial.print("' at ");
     Serial.print(oocsi.getTimeStamp());
     Serial.println();
-  } else if (oocsi.getRecipient() == OOCSIName) {
+  } else if (oocsi.getRecipient() == oocsi.getName()) {
     Serial.print("A direct message for just me from sender '");
     Serial.print(oocsi.getSender());
     Serial.print("' at ");
