@@ -117,7 +117,7 @@ class OOCSI {
 
     // OOCSI
     const char* OOCSIName;
-    char name_buffer[100];
+    char internalHandle[64];
     const char* host;
     const uint16_t port = 4444;
     WiFiClient client;

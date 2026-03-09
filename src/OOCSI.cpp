@@ -212,6 +212,12 @@ void OOCSI::unsubscribe(const char* chan) {
  * @retval returns true if a successful connection is established
  */
 bool OOCSI::internalConnect() {
+
+  // restrict length of OOCSIName to < 64, otherwise the wildcard resolution will break
+  if(strlen(OOCSIName) >= 64) {
+    print(F("ERror: OOCSIName is too long, keep it < 64 chars."));
+  }
+
   if (manageWifi) {
     connectWifi();
   }
@@ -238,20 +244,20 @@ bool OOCSI::internalConnect() {
     println();
     print("OOCSI connected. Current version: ");
     println(OOCSI_VERSION);
-    // print("[x] ");
-    // continue with client-server handshake
+
+    // continue with client-server handshake:
+    // resolve wildcards in OOCSIName for each connection attempt
+    // store resolved handle in internalHandle
     for(int i = 0; i < strlen(OOCSIName); i++) {
       if(OOCSIName[i] == '#') {
-        int rand=random(0, 10);
-        client.print(rand);
-        name_buffer[i] = '0'+rand;
+        internalHandle[i] = '0' + ((int) random(0, 10));
       } else {
-        client.print(OOCSIName[i]);
-        name_buffer[i] = OOCSIName[i];
+        internalHandle[i] = OOCSIName[i];
       }
+      client.print(internalHandle[i]);
     }
-    name_buffer[strlen(OOCSIName)] = '\0'; //terminate with null character
-    
+    // terminate resolved handle with null character
+    internalHandle[strlen(OOCSIName)] = '\0';
     client.println(F("(JSON)"));
 
     // wait for a response from the server (max. 20 sec)
@@ -719,8 +725,7 @@ bool OOCSI::containsClient(const char* clientName) {
 
 // return the client name
 String OOCSI::getName() {
-  const char* currentOOCSIName = (const char*)name_buffer;
-  return currentOOCSIName;
+  return (const char*) internalHandle;
 }
 
 // return current version

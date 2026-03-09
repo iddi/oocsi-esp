@@ -96,7 +96,7 @@ bool DFDataset::logItem() {
   // compile address
   snprintf_P(address, sizeof(address), PSTR("/datasets/ts/log/%i/%s"), dataset_id, activity_id_url);
 
-  HttpClient http = HttpClient(wifi, host, https_port);
+  HttpClient http = HttpClient(wifi, host, 443);
   http.beginRequest();
   http.post(address);
   http.sendHeader("Content-Type: application/json");
@@ -160,7 +160,7 @@ bool DFDataset::addItem() {
   // compile address
   snprintf_P(address, sizeof(address), PSTR("/datasets/entity/%i/item/"), dataset_id);
 
-  HttpClient http = HttpClient(wifi, host, https_port);  
+  HttpClient http = HttpClient(wifi, host, 443);  
   http.beginRequest();
   http.post(address);
   http.sendHeader("Content-Type: application/json");
@@ -225,7 +225,7 @@ bool DFDataset::updateItem() {
   // compile address
   snprintf_P(address, sizeof(address), PSTR("/datasets/entity/%i/item/"), dataset_id);
 
-  HttpClient http = HttpClient(wifi, host, https_port);  
+  HttpClient http = HttpClient(wifi, host, 443);  
   http.beginRequest();
   http.put(address);
   http.sendHeader("Content-Type", F("application/json"));
@@ -283,7 +283,7 @@ bool DFDataset::deleteItem() {
   // compile address
   snprintf_P(address, sizeof(address), PSTR("/datasets/entity/%i/item/"), dataset_id);
 
-  HttpClient http = HttpClient(wifi, host, https_port);  
+  HttpClient http = HttpClient(wifi, host, 443);  
   http.beginRequest();
   http.del(address);
   http.sendHeader("Content-Type", F("application/json"));
@@ -341,7 +341,7 @@ bool DFDataset::getItem() {
   // compile address
   snprintf_P(address, sizeof(address), PSTR("/datasets/entity/%i/item/"), dataset_id);
 
-  HttpClient http = HttpClient(wifi, host, https_port);  
+  HttpClient http = HttpClient(wifi, host, 443);  
   http.beginRequest();
   http.get(address);
   http.sendHeader("Content-Type", F("application/json"));
