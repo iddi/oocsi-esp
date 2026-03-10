@@ -18,6 +18,8 @@
 OOCSI::OOCSI() {
   activityLEDPin = -1;
   logging = true;
+  // initialize internalHandle and also used for '#' handling confirm
+  internalHandle[0] = '\0';
 }
 
 /**
@@ -214,74 +216,71 @@ void OOCSI::unsubscribe(const char* chan) {
 bool OOCSI::internalConnect() {
 
   // restrict length of OOCSIName to < 64, otherwise the wildcard resolution will break
-  if(strlen(OOCSIName) >= 64) {
-    print(F("ERror: OOCSIName is too long, keep it < 64 chars."));
+  if (strlen(OOCSIName) >= 64) {
+    println(F("Error: OOCSIName is too long, keep it < 64 chars."));
+    return false; 
   }
 
   if (manageWifi) {
     connectWifi();
   }
 
-  static int connectionAttemptCounter = 0;
-  if(connectionAttemptCounter == 0) {
-    println();
-    print(F("Connecting to OOCSI"));
-  }
-
-  if (!client.connect(host, port)) {
-    print('.');
-
-    //then it failed. so do it again
-    if (connectionAttemptCounter++ < 100) {
-      delay(250);
-      internalConnect();
-    } else {
+  int connectionAttemptCounter = 0;
+  while (connectionAttemptCounter < 100) {
+    if (connectionAttemptCounter == 0) {
       println();
-      println(F("OOCSI Connection failed"));
-      return false;
+      print(F("Connecting to OOCSI"));
     }
-  } else {
-    println();
-    print("OOCSI connected. Current version: ");
-    println(OOCSI_VERSION);
 
-    // continue with client-server handshake:
-    // resolve wildcards in OOCSIName for each connection attempt
-    // store resolved handle in internalHandle
-    for(int i = 0; i < strlen(OOCSIName); i++) {
-      if(OOCSIName[i] == '#') {
-        internalHandle[i] = '0' + ((int) random(0, 10));
-      } else {
-        internalHandle[i] = OOCSIName[i];
+    if (client.connect(host, port)) {
+      // connect successfully
+      println();
+      print("OOCSI connected. Current version: ");
+      println(OOCSI_VERSION);
+
+      // continue with client-server handshake:
+      // resolve wildcards in OOCSIName for each connection attempt
+      // store resolved handle in internalHandle
+      for (int i = 0; i < strlen(OOCSIName); i++) {
+        if (OOCSIName[i] == '#') {
+          internalHandle[i] = '0' + ((int)random(0, 10));
+        } else {
+          internalHandle[i] = OOCSIName[i];
+        }
+        client.print(internalHandle[i]);
       }
-      client.print(internalHandle[i]);
-    }
-    // terminate resolved handle with null character
-    internalHandle[strlen(OOCSIName)] = '\0';
-    client.println(F("(JSON)"));
+      // terminate resolved handle with null character
+      internalHandle[strlen(OOCSIName)] = '\0';
+      client.println(F("(JSON)"));
 
-    // wait for a response from the server (max. 20 sec)
-    int waitingResponseCounter = 0;
-    while (!client.available() && waitingResponseCounter++ < 40) {
-      print('.');
-      delay(250);
-    }
-
-    if (client.available()) {
-      String message = client.readStringUntil('\n');
-      println(message);
-      prevTime = millis();
-
-      if (message.indexOf("welcome") == -1) {
-        // wait before connecting again
-        delay(2000);
-        return internalConnect();
+      // wait for a response from the server (max. 20 sec)
+      int waitingResponseCounter = 0;
+      while (!client.available() && waitingResponseCounter++ < 40) {
+        print('.');
+        delay(250);
       }
-      return true;
-    } else {
-      return false;
+
+      if (client.available()) {
+        String message = client.readStringUntil('\n');
+        println(message);
+        prevTime = millis();
+
+        if (message.indexOf("welcome") != -1) {
+          return true; 
+        }
+      }
+      // reconnect if no "welcome" messsage is received
+      client.stop();
     }
+
+    // reconnect as failed
+    print('.');
+    connectionAttemptCounter++;
+    delay(250);
   }
+
+  println();
+  println(F("OOCSI Connection failed after 100 attempts"));
   return false;
 }
 
@@ -725,7 +724,11 @@ bool OOCSI::containsClient(const char* clientName) {
 
 // return the client name
 String OOCSI::getName() {
-  return (const char*) internalHandle;
+  if (internalHandle[0] == '\0') {
+    // return original OOCSIName if '#' is not handled yet (may includes '#'s)
+    return String(OOCSIName);
+  }
+  return String(internalHandle);
 }
 
 // return current version
