@@ -3,8 +3,10 @@
  *                  requests with the token of IoT dataset in Data Foundry. 
  *    Target model: Arduino Nano ESP32, Arduino Uno R4 WiFi. 
  *                  And other models with Espressif ESP32 family chips or ESP8266 chip 
- *                  should also work fine, but it's NOT working for boards with the 
- *                  NINA-W102 Wifi module built-in.
+ *                  should also work fine.
+ *                  For boards with the NINA-W102 Wifi module built-in, upload SSL
+ *                  certificate separately is required, official reference:
+ *                  https://docs.arduino.cc/software/ide-v2/tutorials/ide-v2-fw-cert-uploader/
  *  Target dataset: IoT dataset in Data Foundry
  *            Date: Mar. 11, 2026
  *          Author: I-Tang (Eden) Chiang
@@ -26,6 +28,12 @@
 
 #ifdef ARDUINO_UNOWIFIR4
 #include <WiFiS3.h>
+#include <ArduinoHttpClient.h>
+#endif
+
+#if defined(ARDUINO_NANO_RP2040_CONNECT) || defined(ARDUINO_SAMD_NANO_33_IOT)
+// boards with NINA-W102 WiFi module, correct certification pre-upload is required
+#include <WiFiNINA.h>
 #include <ArduinoHttpClient.h>
 #endif
 
@@ -245,7 +253,7 @@ void addFloat(const char* key, float value) {
   jsonMessage[key] = value;
 }
 
-// TLS connection configuration
+// TLS connection configuration, not required for boards with NINA-W102 WiFi module
 void ensureTlsConfigured() {
   static bool tls_ready = false;
   if (tls_ready) return;
@@ -266,7 +274,7 @@ void ensureTlsConfigured() {
 #elif defined(ARDUINO_UNOWIFIR4)
   wifi.setCACert(root_ca_df);
 #else
-  // WiFiNINA boards don't expose a setCACert function, they require seperate certificate flashing
+  // WiFiNINA boards, upload certification in advance is required
 #endif
 
   tls_ready = true;
@@ -296,8 +304,8 @@ bool logItem() {
   urlencode(activity_id_url, activity_id);
 
   // do transmission
-#if defined(ARDUINO_UNOWIFIR4)
-  // for Arduino Uno R4 WiFi
+#if defined(ARDUINO_UNOWIFIR4) || defined(ARDUINO_NANO_RP2040_CONNECT) || defined(ARDUINO_SAMD_NANO_33_IOT)
+  // for Arduino Uno R4 WiFi and other boards with NINA WiFI module
   // compile address
   snprintf_P(address, sizeof(address), PSTR("/datasets/ts/log/%i/%s"), dataset_id, activity_id_url);
 
