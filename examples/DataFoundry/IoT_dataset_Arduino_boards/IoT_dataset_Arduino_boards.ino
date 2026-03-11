@@ -32,7 +32,7 @@
 #endif
 
 #if defined(ARDUINO_NANO_RP2040_CONNECT) || defined(ARDUINO_SAMD_NANO_33_IOT)
-// boards with NINA-W102 WiFi module, correct certification pre-upload is required
+// boards with NINA-W102 WiFi module, correct certificate pre-upload is required
 #include <WiFiNINA.h>
 #include <ArduinoHttpClient.h>
 #endif
@@ -74,7 +74,7 @@ WiFiClientSecure wifi;
 WiFiSSLClient wifi;
 #endif
 
-// Certification setup for HTTPS protocol
+// certificate setup for HTTPS protocol
 const char root_ca[] = \
   "-----BEGIN CERTIFICATE-----\n" \
   "MIIFazCCA1OgAwIBAgIRAIIQz7DSQONZRGPgu2OCiwAwDQYJKoZIhvcNAQELBQAw\n" \
@@ -274,7 +274,7 @@ void ensureTlsConfigured() {
 #elif defined(ARDUINO_UNOWIFIR4)
   wifi.setCACert(root_ca_df);
 #else
-  // WiFiNINA boards, upload certification in advance is required
+  // WiFiNINA boards, upload certificate in advance is required
 #endif
 
   tls_ready = true;
