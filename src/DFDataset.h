@@ -1,13 +1,12 @@
 /***************************************************************************
- * The DataFoundry library for the ESP32, ESP8266, Arduino MKR Wifi 101, 
- * Arduino UNO Wifi, Arduino Nano 33 IoT, and Arduino Nano RP2040 
- * to store and retrieve data from ESPs and Arduinos on the Data 
- * Foundry platform.
+ * The DataFoundry library for the ESP32, ESP8266, Arduino MKR Wifi 101,
+ * Arduino UNO Wifi, Arduino Nano 33 IoT, Arduino Nano RP2040, and
+ * Arduino Uno WiFi R4 to store and retrieve data from ESPs and Arduinos on 
+ * the Data Foundry platform.
  *
  * Developed by Mathias Funk
- * 
- * Last updated @Jun. 4th, 2025 by Eden Chiang 
- * New support models: Arduino Nano ESP32, and Arduino Uno R4 WiFi
+ *
+ * Last updated by Eden Chiang @ Mar. 12, 2026
  **************************************************************************/
 
 #ifndef DFDATASET_h
@@ -16,10 +15,12 @@
 #if defined(ESP32) || defined(NANO_ESP32)
     #include <WiFi.h>
     #include <HTTPClient.h>
+    #include <WiFiClientSecure.h>
 #endif
 #ifdef ESP8266
     #include <ESP8266WiFi.h>
     #include <ESP8266HTTPClient.h>
+    #include <WiFiClientSecure.h>
 #endif
 #if defined(ARDUINO_SAMD_MKRWIFI1010) || defined(ARDUINO_AVR_UNO_WIFI_REV2) || defined(ARDUINO_SAMD_NANO_33_IOT) || defined(ARDUINO_NANO_RP2040_CONNECT)
     #include <WiFiNINA.h>
@@ -80,8 +81,11 @@ class DFDataset {
 
   private:
 
-    // wifi connection
-    WiFiClient wifi;
+#if defined(ESP8266) || defined(ESP32) || defined(NANO_ESP32)
+    WiFiClientSecure wifi;
+#else
+    WiFiSSLClient wifi;
+#endif
 
     // configuration
     const char* host;
@@ -108,6 +112,8 @@ class DFDataset {
     void println(const String &message);
     void println(char message);
     void urlencode(char* dst, const char* src);
+
+    void ensureTlsConfigured();
 };
 
 #endif
