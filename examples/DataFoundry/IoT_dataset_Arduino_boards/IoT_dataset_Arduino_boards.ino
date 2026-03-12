@@ -1,15 +1,17 @@
 /*
- *     Description: This example code is for people who is logging data via HTTPS POST 
- *                  requests with the token of IoT dataset in Data Foundry. 
- *    Target model: Arduino Nano ESP32, Arduino Uno R4 WiFi. 
- *                  And other models with Espressif ESP32 family chips or ESP8266 chip 
- *                  should also work fine.
- *                  For boards with the NINA-W102 Wifi module built-in, upload SSL
- *                  certificate separately is required, official reference:
- *                  https://docs.arduino.cc/software/ide-v2/tutorials/ide-v2-fw-cert-uploader/
- *  Target dataset: IoT dataset in Data Foundry
- *            Date: Mar. 11, 2026
- *          Author: I-Tang (Eden) Chiang
+ *              Description: This example code is for people who is logging data via HTTPS POST 
+ *                           requests with the token of IoT dataset in Data Foundry. 
+ *             Target model: Arduino Nano ESP32, Arduino Uno R4 WiFi. 
+ *                           And other models with Espressif ESP32 family chips or ESP8266 chip 
+ *                           should also work fine.
+ *           Target dataset: IoT dataset in Data Foundry
+ *
+ *                Attention: For boards with the NINA-W102 Wifi module built-in, upload SSL
+ *                           certificate separately is required
+ *  Upload SSL to NINA-W102: https://docs.arduino.cc/software/ide-v2/tutorials/ide-v2-fw-cert-uploader/
+ *
+ *                     Date: Mar. 11, 2026
+ *                   Author: I-Tang (Eden) Chiang
  */
 
 #include <time.h>
