@@ -1,17 +1,13 @@
 /*
- *              Description: This example code is for people who is logging data via HTTPS POST 
- *                           requests with the token of IoT dataset in Data Foundry. 
- *             Target model: Arduino Nano ESP32, Arduino Uno R4 WiFi. 
- *                           And other models with Espressif ESP32 family chips or ESP8266 chip 
- *                           should also work fine.
- *           Target dataset: IoT dataset in Data Foundry
- *
- *                Attention: For boards with the NINA-W102 Wifi module built-in, upload SSL
- *                           certificate separately is required
- *  Upload SSL to NINA-W102: https://docs.arduino.cc/software/ide-v2/tutorials/ide-v2-fw-cert-uploader/
- *
- *                     Date: Mar. 11, 2026
- *                   Author: I-Tang (Eden) Chiang
+ *     Description: This example code is for people who is logging data via HTTPS POST 
+ *                  requests with the token of IoT dataset in Data Foundry. 
+ *    Target model: Arduino Nano ESP32 
+ *                  And other models with Espressif ESP32 family chips or ESP8266 chip 
+ *                  should also work fine, but it's NOT working for boards with the 
+ *                  NINA-W102 Wifi module built-in.
+ *  Target dataset: IoT dataset in Data Foundry
+ *            Date: Mar. 11, 2026
+ *          Author: I-Tang (Eden) Chiang
  */
 
 #include <time.h>
@@ -34,7 +30,6 @@
 #endif
 
 #if defined(ARDUINO_NANO_RP2040_CONNECT) || defined(ARDUINO_SAMD_NANO_33_IOT)
-// boards with NINA-W102 WiFi module, correct certificate pre-upload is required
 #include <WiFiNINA.h>
 #include <ArduinoHttpClient.h>
 #endif
@@ -42,9 +37,9 @@
 #include <ArduinoJson.h>
 
 // --- Wifi network setup ---
-const char* ssid = "SSID_OF_WIFI_NETWORK";
+const char* ssid = "Router-ID-2.id";
 // Password of your Wifi network.
-const char* password = "PASSWORK_OF_WIFI_NETWORK";
+const char* password = "/d.search-lab";
 
 // the server address of your Data Foundry instance (server of TU/e)
 const char* datafoundry = "data.id.tue.nl";
@@ -76,7 +71,7 @@ WiFiClientSecure wifi;
 WiFiSSLClient wifi;
 #endif
 
-// certificate setup for HTTPS protocol
+// Certification setup for HTTPS protocol
 const char root_ca[] = \
   "-----BEGIN CERTIFICATE-----\n" \
   "MIIFazCCA1OgAwIBAgIRAIIQz7DSQONZRGPgu2OCiwAwDQYJKoZIhvcNAQELBQAw\n" \
@@ -276,7 +271,7 @@ void ensureTlsConfigured() {
 #elif defined(ARDUINO_UNOWIFIR4)
   wifi.setCACert(root_ca_df);
 #else
-  // WiFiNINA boards, upload certificate in advance is required
+  // WiFiNINA boards don't expose a setCACert function, they require seperate certificate flashing
 #endif
 
   tls_ready = true;
@@ -307,7 +302,7 @@ bool logItem() {
 
   // do transmission
 #if defined(ARDUINO_UNOWIFIR4) || defined(ARDUINO_NANO_RP2040_CONNECT) || defined(ARDUINO_SAMD_NANO_33_IOT)
-  // for Arduino Uno R4 WiFi and other boards with NINA WiFI module
+  // Arduino Uno R4 WiFi
   // compile address
   snprintf_P(address, sizeof(address), PSTR("/datasets/ts/log/%i/%s"), dataset_id, activity_id_url);
 
@@ -342,7 +337,7 @@ bool logItem() {
 
   return httpCode == 200;
 #else
-  // for Arduino Nano ESP32, ESP32, and ESP8266
+  // Arduino Nano ESP32, ESP32, and ESP8266
   // compile address
   snprintf_P(address, sizeof(address), PSTR("https://%s/datasets/ts/log/%i/%s"), host, dataset_id, activity_id_url);
   
@@ -358,7 +353,6 @@ bool logItem() {
   int httpCode = https.POST(postMessage);
   jsonMessage.clear();
 
-  // response check, can be comment out as of 200 is returned
   print("http code: ");
   Serial.println(httpCode);
 
@@ -381,7 +375,8 @@ void setup() {
   Serial.println("\nWiFi Connected!");
 
   // create connection to dataset with server address, dataset id, and the access token
-  setDFDataset(datafoundry, DATASET_ID, "TOKEN_OF_IoT_DATASET_FOR_WEB_ACCESS");
+  // setDFDataset(datafoundry, DATASET_ID, "TOKEN_OF_IoT_DATASET_FOR_WEB_ACCESS");
+  setDFDataset(datafoundry, 18893, "WkZ6WWhVYVcvaWdPOUR1cWk2Z3N0Z1JCV2FCVThUbG1QZ2htRWxqTm9uTT0=");
 }
 
 void loop() {
