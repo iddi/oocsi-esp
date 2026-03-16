@@ -7,7 +7,10 @@
  * Developed by Mathias Funk
  *
  * Attention: Arduino Nano ESP32 doesn't directly work with this library,
- *            please check another example: IoT_dataset_ArduinoNanoESP32
+ *            please check other examples: 
+ *              - IoT_dataset_ArduinoNanoESP32
+ *              - Entity_dataset_ArduinoNanoESP32
+ * 
  * Last updated by Eden Chiang @ Mar. 12, 2026
  **************************************************************************/
 
