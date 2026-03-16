@@ -1,16 +1,16 @@
 /*
- *              Description: This example code is for people who is logging data via HTTPS POST 
- *                           requests with the token of IoT dataset in Data Foundry. 
- *             Target model: Arduino Nano ESP32, Arduino Uno R4 WiFi. 
+ *              Description: This example code is for people who is monitoring data via HTTPS POST 
+ *                           requests with the token of Entiity dataset in Data Foundry. 
+ *             Target model: Arduino Nano ESP32 
  *                           And other models with Espressif ESP32 family chips or ESP8266 chip 
  *                           should also work fine.
- *           Target dataset: IoT dataset in Data Foundry
+ *           Target dataset: Entiity dataset in Data Foundry
  *
  *                Attention: For boards with the NINA-W102 Wifi module built-in, upload SSL
  *                           certificate separately is required
  *  Upload SSL to NINA-W102: https://docs.arduino.cc/software/ide-v2/tutorials/ide-v2-fw-cert-uploader/
  *
- *                     Date: Mar. 11, 2026
+ *                     Date: Mar. 13, 2026
  *                   Author: I-Tang (Eden) Chiang
  */
 
@@ -153,24 +153,47 @@ void setup() {
   Serial.println("\nWiFi Connected!");
 
   // create connection to dataset with server address, dataset id, and the access token
-  setDFDataset(DATAFOUNDRY, DATASET_ID, TOKEN_OF_IoT_DATASET_FOR_WEB_ACCESS);
+  setDFDataset(DATAFOUNDRY, DATASET_ID, TOKEN_OF_ENTITY_DATASET_FOR_WEB_ACCESS);
 }
 
 void loop() {
-  // specify device, can be empty
-  setDevice("RefID_of_device_in_DataFoundry");
 
-  // specify activity, can be empty
-  setActivity("idle");
+  // identify the item in the entity dataset
+  // id is used to identify the item
+  setId("mydevice");
+  // token cannot be empty, can act as a password if needed
+  // use same string as id if password protection is not needed
+  setToken("mydevice");
 
   // fill in some data for the item (very similar to OOCSI)
-  addInt("numericalTimingData", millis());
-  addBool("yesno", true);
-  addString("stringData", "a long, long, long, long, long string - not really, but you get the point.");
-  addString("dev_id", "d54d34c1bd3f241c8");
-  addFloat("temp", 33.12);
-  addLong("MAX-long", 2147483647L);
+  addInt("numericalTimingData", 0);
 
-  logItem();
-  delay(5000);
+  // add the item (initially or after delete)
+  addItem();
+  println("added item");
+
+  delay(3000);
+
+  // retrieve the item
+  getItem();
+
+  // extract the data (very similar to OOCSI)
+  int data = getInt("numericalTimingData", -1);
+  Serial.println(data);
+
+  delay(700);
+
+  // add or update data
+  addInt("numericalTimingData", millis());
+  addString("stringData", "a long, long, long, long, long string - not really, but you get the point.");
+
+  // update the item with new data
+  updateItem();
+  println("updated items");
+  delay(7000);
+
+  // remove the item
+  deleteItem();
+  println("deleted item");
+  delay(7000);
 }
